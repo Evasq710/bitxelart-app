@@ -1,9 +1,11 @@
-import tkinter
+from tkinter import *
+from tkinter import filedialog
+import interface
 
 def abrirArchivo():    
-    tkinter.Tk().withdraw()
+    Tk().withdraw()
     print('--> Se ha abierto la ventana para seleccionar el archivo')
-    archivo = tkinter.filedialog.askopenfile(
+    archivo = filedialog.askopenfile(
         title = "Seleccionar archivo PXLA",
         initialdir = "./",
         filetypes = {
@@ -17,3 +19,8 @@ def abrirArchivo():
         return texto
     except:
         return None
+
+if __name__ == '__main__':
+    ventana = Tk()
+    app = interface.Interfaz(ventana)
+    ventana.mainloop()
