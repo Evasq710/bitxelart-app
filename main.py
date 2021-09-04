@@ -1,5 +1,8 @@
 from tkinter import *
 from tkinter import filedialog
+from token import Token
+
+texto_doc = ""
 
 class Interfaz:
     def __init__(self, ventana):
@@ -33,7 +36,8 @@ class Interfaz:
         self.salir_btn = Button(frame_btn, text="Salir", font=("Consolas", 15), fg="cornsilk", bg="firebrick")
         self.salir_btn.grid(row=0, column=4, padx=20)
 
-    def abrirArchivo(self):    
+    def abrirArchivo(self):
+        global texto_doc
         Tk().withdraw()
         print('--> Se ha abierto la ventana para seleccionar el archivo')
         archivo = filedialog.askopenfile(
@@ -48,10 +52,9 @@ class Interfaz:
             texto = archivo.read()
             archivo.close()
             print("Archivo leído con éxito")
-            return texto
+            texto_doc = texto
         except:
-            print("Fallo al leer el archivo")
-            return None
+            print("No se seleccionó un archivo")
 
 if __name__ == '__main__':
     ventana = Tk()
