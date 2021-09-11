@@ -1,8 +1,25 @@
 class Token:
-    def __init__ (self, id_token, nombre, numero = None, lexema = None, fila = None, columna = None):
+    def __init__ (self, id_token, nombre, leido = False, numero = None, lexema = None, fila = None, columna = None):
         self.id_token = id_token
         self.nombre = nombre
+        self.leido = leido
         self.numero = numero
         self.lexema = lexema
         self.fila = fila
         self.columna = columna
+    
+    def token_leido(self):
+        self.leido = True
+    
+    def reinicio_token(self):
+        self.leido = False
+
+class Imagen:
+    def __init__(self, titulo, ancho, alto, filas, columnas, celdas, filtros = None):
+        self.titulo = titulo
+        self.ancho = ancho
+        self.alto = alto
+        self.filas = filas
+        self.columnas = columnas
+        self.celdas = celdas
+        self.filtros = filtros
