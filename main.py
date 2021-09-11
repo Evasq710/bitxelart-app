@@ -1,8 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
-from token import Token
-
-texto_doc = ""
+from clases import Token
 
 class Interfaz:
     def __init__(self, ventana):
@@ -55,6 +53,47 @@ class Interfaz:
             texto_doc = texto
         except:
             print("No se seleccionó un archivo")
+
+texto_doc = ""
+tokens = []
+titulo = Token(1, "titulo")
+tokens.append(titulo)
+ancho = Token(2, "ancho")
+tokens.append(ancho)
+alto = Token(3, "alto")
+tokens.append(alto)
+filas = Token(4, "filas")
+tokens.append(filas)
+columnas = Token(5, "columnas")
+tokens.append(columnas)
+celdas = Token(6, "celdas")
+tokens.append(celdas)
+filtros = Token(7, "filtros")
+tokens.append(filtros)
+mirrorx = Token(8, "mirrorx")
+tokens.append(mirrorx)
+mirrory = Token(9, "mirrory")
+tokens.append(mirrory)
+doublemirror = Token(10, "doublemirror")
+tokens.append(doublemirror)
+igual = Token(11, "igual")
+tokens.append(igual)
+cadena = Token(12, "cadena")
+tokens.append(cadena)
+numero = Token(13, "numero")
+tokens.append(numero)
+abre_llave = Token(14, "abre_llave")
+tokens.append(abre_llave)
+celda = Token(15, "celda")
+tokens.append(celda)
+coma = Token(16, "coma")
+tokens.append(coma)
+cierra_llave = Token(17, "cierra_llave")
+tokens.append(cierra_llave)
+punto_coma = Token(18, "punto_coma")
+tokens.append(punto_coma)
+separador = Token(19, "separador")
+tokens.append(separador)
 
 if __name__ == '__main__':
     ventana = Tk()
