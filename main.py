@@ -61,19 +61,29 @@ class Interfaz:
         title = Label(self.window, text="Bixelart App", font=("Consolas", 60, "bold"), bg="cornsilk")
         title.place(x=500, y=70)
 
+        self.frame4 = LabelFrame(self.window,bg="white", text="Reportes")
+        self.frame3 = LabelFrame(self.window,bg="white", text="Imágenes")
+        self.frame2 = LabelFrame(self.window,bg="white", text="Analizar Archivo")
+        self.frame1 = LabelFrame(self.window,bg="white", text="Cagar Archivo")
+        
+        for frame in (self.frame1, self.frame2, self.frame3, self.frame4):
+            frame.place(x=300, y=280, width=1000, height=350)
+            title = Label(frame, text="TITULO DE PRUEBA")
+            title.pack()
+
         frame_btn = Frame(self.window, bg="cornsilk")
         frame_btn.place(x=300, y=200)
 
-        self.cargar_btn = Button(frame_btn, text="Cargar Archivo", font=("Consolas", 15), bg="light sea green", command=self.abrirArchivo)
+        self.cargar_btn = Button(frame_btn, text="Cargar Archivo", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame1.tkraise() ,self.abrirArchivo()])
         self.cargar_btn.grid(row=0, column=0, padx=20)
 
-        self.analizar_btn = Button(frame_btn, text="Analizar Archivo y\ngenerar HTML", font=("Consolas", 15), bg="light sea green")
+        self.analizar_btn = Button(frame_btn, text="Analizar Archivo y\ngenerar HTML", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame2.tkraise()])
         self.analizar_btn.grid(row=0, column=1, padx=20)
 
-        self.imagenes_btn = Button(frame_btn, text="Imagenes", font=("Consolas", 15), bg="light sea green")
+        self.imagenes_btn = Button(frame_btn, text="Imagenes", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame3.tkraise()])
         self.imagenes_btn.grid(row=0, column=2, padx=20)
 
-        self.reportes_btn = Button(frame_btn, text="Ver Reportes HTML", font=("Consolas", 15), bg="light sea green")
+        self.reportes_btn = Button(frame_btn, text="Ver Reportes HTML", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame4.tkraise()])
         self.reportes_btn.grid(row=0, column=3, padx=20)
 
         self.salir_btn = Button(frame_btn, text="Salir", font=("Consolas", 15), fg="cornsilk", bg="firebrick")
