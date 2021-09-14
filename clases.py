@@ -8,7 +8,7 @@ class Token:
         self.fila = fila
         self.columna = columna
     
-    def already_read(self):
+    def is_already_read(self):
         return self.leido
 
     def token_leido(self):
@@ -18,19 +18,21 @@ class Token:
         self.leido = False
 
 class Error:
-    def __init__ (self, numero, fila, columna):
+    def __init__ (self, numero, caracter, descripcion, fila, columna):
         self.numero = numero
+        self.caracter = caracter
+        self.descripcion = descripcion
         self.fila = fila
         self.columna = columna
 
 class Imagen:
-    def __init__(self, titulo, ancho, alto, filas, columnas, celdas, filtros = None):
+    def __init__(self, titulo, ancho, alto, filas, columnas, matriz_celdas, filtros = None):
         self.titulo = titulo
         self.ancho = ancho
         self.alto = alto
         self.filas = filas
         self.columnas = columnas
-        self.celdas = celdas
+        self.matriz_celdas = matriz_celdas
         self.filtros = filtros
 
 class Celda:
