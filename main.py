@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
-from clases import Token, Imagen
+from clases import Token, Imagen, Celda
 import os
 
 tokens = []
@@ -82,7 +82,7 @@ class Interfaz:
         frame_btn = Frame(self.window, bg="cornsilk")
         frame_btn.place(x=300, y=200)
 
-        self.cargar_btn = Button(frame_btn, text="Cargar Archivo", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame1.tkraise() ,self.abrirArchivo()])
+        self.cargar_btn = Button(frame_btn, text="Cargar Archivo", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame1.tkraise(), self.abrirArchivo()])
         self.cargar_btn.grid(row=0, column=0, padx=20)
 
         self.analizar_btn = Button(frame_btn, text="Analizar Archivo y\ngenerar HTML", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame2.tkraise()])
@@ -94,7 +94,7 @@ class Interfaz:
         self.reportes_btn = Button(frame_btn, text="Ver Reportes HTML", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame4.tkraise()])
         self.reportes_btn.grid(row=0, column=3, padx=20)
 
-        self.salir_btn = Button(frame_btn, text="Salir", font=("Consolas", 15), fg="cornsilk", bg="firebrick")
+        self.salir_btn = Button(frame_btn, text="Salir", font=("Consolas", 15), fg="cornsilk", bg="firebrick", command=ventana.destroy)
         self.salir_btn.grid(row=0, column=4, padx=20)
 
     def abrirArchivo(self):

@@ -23,3 +23,10 @@ class Imagen:
         self.columnas = columnas
         self.celdas = celdas
         self.filtros = filtros
+
+class Celda:
+    def __init__(self, pos_x, pos_y, color, is_painted = False):
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.color = color
+        self.is_painted = is_painted
