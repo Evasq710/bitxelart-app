@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
-from clases import Token, Imagen, Celda
+from clases import Token, Imagen, Celda, Error
 import os
 
 tokens = []
@@ -160,7 +160,7 @@ class Interfaz:
             print("->No se seleccionó un archivo")
     
     def is_ascii(self, caracter):
-        if (ord(caracter) >= 32 and ord(caracter) <= 126) or ord(caracter) == 130 or (ord(caracter) >= 160 and ord(caracter) <= 165):
+        if ord(caracter) == 32 or ord(caracter) == 33 or (ord(caracter) >= 35 and ord(caracter) <= 126) or ord(caracter) == 130 or (ord(caracter) >= 160 and ord(caracter) <= 165):
             return True
         return False
 
@@ -168,94 +168,981 @@ class Interfaz:
         if ord(caracter) >= 48 and ord(caracter) <= 57:
             return True
         return False
+    
+    def is_hexadecimal_letter(self, caracter):
+        if (ord(caracter) >= 65 and ord(caracter) <= 70) or (ord(caracter) >= 97 and ord(caracter) <= 102):
+            return True
+        return False
 
     def analizar_archivo(self):
         global texto_doc
         global texto_cargado
+        global tokens
+        global tokens_leidos
         if texto_cargado:
             fila = 1
-            columna = 0
+            columna, new_token, sections = 0
             estado_file = "a0"
             estado_img = "b0"
+            estado_sec = "c0"
             lexema_actual = ""
             for caracter in texto_doc:
                 # Control Filas - columnas
-                if ord(caracter) == 9:
+                if ord(caracter) == 9: # tab
                     columna += 4
-                elif ord(caracter) == 10:
+                elif ord(caracter) == 10: # salto de linea
                     columna = 0
                     fila += 1
-                elif ord(caracter) == 32:
+                elif ord(caracter) == 32: # espacio
                     columna += 1
-                else:
+                else: # otro caracter
                     columna +=1
                 # Estados
-                if estado_file == "a0":
-                    if estado_img == "b0":
-                        pass
-                    elif estado_img == "b1":
-                        pass
-                    elif estado_img == "b2":
-                        pass
-                    elif estado_img == "b3":
-                        pass
-                    elif estado_img == "b4":
-                        pass
-                    elif estado_img == "b5":
-                        pass
-                    elif estado_img == "b6":
-                        pass
-                    elif estado_img == "b7":
-                        pass
+                if estado_file == "a0" or estado_file == "a5":
+                    if estado_img == "b0" and sections < 7:
+                        if estado_sec == "c0":
+                            if caracter == "T":
+                                lexema_actual += caracter
+                                estado_sec = "c1"
+                            elif caracter == "A":
+                                lexema_actual += caracter
+                                estado_sec = "c11"
+                            elif caracter == "F":
+                                lexema_actual += caracter
+                                estado_sec = "c21"
+                            elif caracter == "C":
+                                lexema_actual += caracter
+                                estado_sec = "c51"
+                            elif caracter == "@":
+                                if sections == 6:
+                                    # TODO Imagen sin filtros
+                                    sections = 0
+                                    lexema_actual += caracter
+                                    estado_file = "a2"
+                                else:
+                                    # TODO Faltan secciones de imagen
+                                    sections = 0
+                                    lexema_actual += caracter
+                                    estado_file = "a2"
+                            elif caracter == "$":
+                                # TODO Fin del archivo
+                                if sections == 6:
+                                    # TODO Imagen sin filtros
+                                    pass
+                                else:
+                                    # TODO Faltan secciones de imagen
+                                    pass
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c1":
+                            if caracter == "I":
+                                lexema_actual += caracter
+                                estado_sec = "c2"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c2":
+                            if caracter == "T":
+                                lexema_actual += caracter
+                                estado_sec = "c3"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c3":
+                            if caracter == "U":
+                                lexema_actual += caracter
+                                estado_sec = "c4"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c4":
+                            if caracter == "L":
+                                lexema_actual += caracter
+                                estado_sec = "c5"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c5":
+                            if caracter == "O":
+                                lexema_actual += caracter
+                                new_token += 1
+                                tit = Token(1, "Titulo", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(tit)
+                                lexema_actual = ""
+                                estado_sec = "c6"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c6":
+                            if caracter == "=":
+                                lexema_actual += caracter
+                                new_token += 1
+                                eq = Token(11, "Igual", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(eq)
+                                lexema_actual = ""
+                                estado_sec = "c7"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c7":
+                            if caracter == '"':
+                                lexema_actual += caracter
+                                estado_sec = "c8"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c8":
+                            if self.is_ascii(caracter):
+                                lexema_actual += caracter
+                                estado_sec = "c9"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c9":
+                            if self.is_ascii(caracter):
+                                lexema_actual += caracter
+                            elif caracter == '"':
+                                lexema_actual += caracter
+                                new_token += 1
+                                cad = Token(12, "Cadena", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(cad)
+                                lexema_actual = ""
+                                estado_sec = "c10"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c10":
+                            if caracter == ";":
+                                lexema_actual += caracter
+                                new_token += 1
+                                p_c = Token(18, "Punto y coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(p_c)
+                                lexema_actual = ""
+                                estado_sec = "c85"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c11":
+                            if caracter == "N":
+                                lexema_actual += caracter
+                                estado_sec = "c12"
+                            elif caracter == "L":
+                                lexema_actual += caracter
+                                estado_sec = "c16"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c12":
+                            if caracter == "C":
+                                lexema_actual += caracter
+                                estado_sec = "c12"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c13":
+                            if caracter == "H":
+                                lexema_actual += caracter
+                                estado_sec = "c14"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c14":
+                            if caracter == "O":
+                                lexema_actual += caracter
+                                new_token += 1
+                                an = Token(2, "Ancho", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(an)
+                                lexema_actual = ""
+                                estado_sec = "c15"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c15":
+                            if caracter == "=":
+                                lexema_actual += caracter
+                                new_token += 1
+                                eq = Token(11, "Igual", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(eq)
+                                lexema_actual = ""
+                                estado_sec = "c19"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c16":
+                            if caracter == "T":
+                                lexema_actual += caracter
+                                estado_sec = "c17"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c17":
+                            if caracter == "O":
+                                lexema_actual += caracter
+                                new_token += 1
+                                al = Token(3, "Alto", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(al)
+                                lexema_actual = ""
+                                estado_sec = "c18"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c18":
+                            if caracter == "=":
+                                lexema_actual += caracter
+                                new_token += 1
+                                eq = Token(11, "Igual", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(eq)
+                                lexema_actual = ""
+                                estado_sec = "c19"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c19":
+                            if self.is_number(caracter):
+                                lexema_actual += caracter
+                                estado_sec = "c20"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c20":
+                            if self.is_number(caracter):
+                                lexema_actual += caracter
+                            elif caracter == ";":
+                                new_token += 1
+                                num = Token(13, "Numero", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(num)
+                                lexema_actual = ""
+                                lexema_actual += caracter
+                                new_token += 1
+                                p_c = Token(18, "Punto y coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(p_c)
+                                lexema_actual = ""
+                                estado_sec = "c85"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                new_token += 1
+                                num = Token(13, "Numero", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(num)
+                                lexema_actual = ""
+                                estado_sec = "c20.5"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c20.5":
+                            if caracter == ";":
+                                lexema_actual += caracter
+                                new_token += 1
+                                p_c = Token(18, "Punto y coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(p_c)
+                                lexema_actual = ""
+                                estado_sec = "c85"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c21":
+                            if caracter == "I":
+                                lexema_actual += caracter
+                                estado_sec = "c22"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c22":
+                            if caracter == "L":
+                                lexema_actual += caracter
+                                estado_sec = "c23"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c23":
+                            if caracter == "A":
+                                lexema_actual += caracter
+                                estado_sec = "c24"
+                            elif caracter == "T":
+                                lexema_actual += caracter
+                                estado_sec = "c26"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c24":
+                            if caracter == "S":
+                                lexema_actual += caracter
+                                new_token += 1
+                                fi = Token(4, "Filas", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(fi)
+                                lexema_actual = ""
+                                estado_sec = "c25"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c25":
+                            if caracter == "=":
+                                lexema_actual += caracter
+                                new_token += 1
+                                eq = Token(11, "Igual", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(eq)
+                                lexema_actual = ""
+                                estado_sec = "c19"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c26":
+                            if caracter == "R":
+                                lexema_actual += caracter
+                                estado_sec = "c27"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c27":
+                            if caracter == "O":
+                                lexema_actual += caracter
+                                estado_sec = "c28"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c28":
+                            if caracter == "S":
+                                lexema_actual += caracter
+                                new_token += 1
+                                filt = Token(7, "Filtros", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(filt)
+                                lexema_actual = ""
+                                estado_sec = "c29"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c29":
+                            if caracter == "=":
+                                lexema_actual += caracter
+                                new_token += 1
+                                eq = Token(11, "Igual", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(eq)
+                                lexema_actual = ""
+                                estado_sec = "c30"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c30":
+                            if caracter == "M":
+                                lexema_actual += caracter
+                                estado_sec = "c31"
+                            elif caracter == "D":
+                                lexema_actual += caracter
+                                estado_sec = "c39"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c31":
+                            if caracter == "I":
+                                lexema_actual += caracter
+                                estado_sec = "c32"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c32":
+                            if caracter == "R":
+                                lexema_actual += caracter
+                                estado_sec = "c33"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c33":
+                            if caracter == "R":
+                                lexema_actual += caracter
+                                estado_sec = "c34"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c34":
+                            if caracter == "O":
+                                lexema_actual += caracter
+                                estado_sec = "c35"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c35":
+                            if caracter == "R":
+                                lexema_actual += caracter
+                                estado_sec = "c36"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c36":
+                            if caracter == "X":
+                                lexema_actual += caracter
+                                new_token += 1
+                                m_x = Token(8, "MirrorX", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(m_x)
+                                lexema_actual = ""
+                                estado_sec = "c37"
+                            elif caracter == "Y":
+                                lexema_actual += caracter
+                                new_token += 1
+                                m_y = Token(9, "MirrorY", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(m_y)
+                                lexema_actual = ""
+                                estado_sec = "c38"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c37":
+                            if caracter == ",":
+                                lexema_actual += caracter
+                                new_token += 1
+                                com = Token(16, "Coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(com)
+                                lexema_actual = ""
+                                estado_sec = "c30"
+                            elif caracter == ";":
+                                lexema_actual += caracter
+                                new_token += 1
+                                p_c = Token(18, "Punto y coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(p_c)
+                                lexema_actual = ""
+                                estado_sec = "c85"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c38":
+                            if caracter == ",":
+                                lexema_actual += caracter
+                                new_token += 1
+                                com = Token(16, "Coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(com)
+                                lexema_actual = ""
+                                estado_sec = "c30"
+                            elif caracter == ";":
+                                lexema_actual += caracter
+                                new_token += 1
+                                p_c = Token(18, "Punto y coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(p_c)
+                                lexema_actual = ""
+                                estado_sec = "c85"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c39":
+                            if caracter == "O":
+                                lexema_actual += caracter
+                                estado_sec = "c40"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c40":
+                            if caracter == "U":
+                                lexema_actual += caracter
+                                estado_sec = "c41"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c41":
+                            if caracter == "B":
+                                lexema_actual += caracter
+                                estado_sec = "c42"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c42":
+                            if caracter == "L":
+                                lexema_actual += caracter
+                                estado_sec = "c43"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c43":
+                            if caracter == "E":
+                                lexema_actual += caracter
+                                estado_sec = "c44"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c44":
+                            if caracter == "M":
+                                lexema_actual += caracter
+                                estado_sec = "c45"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c45":
+                            if caracter == "I":
+                                lexema_actual += caracter
+                                estado_sec = "c46"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c46":
+                            if caracter == "R":
+                                lexema_actual += caracter
+                                estado_sec = "c47"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c47":
+                            if caracter == "R":
+                                lexema_actual += caracter
+                                estado_sec = "c48"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c48":
+                            if caracter == "O":
+                                lexema_actual += caracter
+                                estado_sec = "c49"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c49":
+                            if caracter == "R":
+                                lexema_actual += caracter
+                                new_token += 1
+                                d_m = Token(10, "DoubleMirror", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(d_m)
+                                lexema_actual = ""
+                                estado_sec = "c50"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c50":
+                            if caracter == ",":
+                                lexema_actual += caracter
+                                new_token += 1
+                                com = Token(16, "Coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(com)
+                                lexema_actual = ""
+                                estado_sec = "c30"
+                            elif caracter == ";":
+                                lexema_actual += caracter
+                                new_token += 1
+                                p_c = Token(18, "Punto y coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(p_c)
+                                lexema_actual = ""
+                                estado_sec = "c85"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c51":
+                            if caracter == "O":
+                                lexema_actual += caracter
+                                estado_sec = "c52"
+                            elif caracter == "E":
+                                lexema_actual += caracter
+                                estado_sec = "c59"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c52":
+                            if caracter == "L":
+                                lexema_actual += caracter
+                                estado_sec = "c53"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c53":
+                            if caracter == "U":
+                                lexema_actual += caracter
+                                estado_sec = "c54"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c54":
+                            if caracter == "M":
+                                lexema_actual += caracter
+                                estado_sec = "c55"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c55":
+                            if caracter == "N":
+                                lexema_actual += caracter
+                                estado_sec = "c56"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c56":
+                            if caracter == "A":
+                                lexema_actual += caracter
+                                estado_sec = "c57"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c57":
+                            if caracter == "S":
+                                lexema_actual += caracter
+                                new_token += 1
+                                col = Token(5, "Columnas", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(col)
+                                lexema_actual = ""
+                                estado_sec = "c58"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c58":
+                            if caracter == "=":
+                                lexema_actual += caracter
+                                new_token += 1
+                                eq = Token(11, "Igual", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(eq)
+                                lexema_actual = ""
+                                estado_sec = "c19"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c59":
+                            if caracter == "L":
+                                lexema_actual += caracter
+                                estado_sec = "c60"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c60":
+                            if caracter == "D":
+                                lexema_actual += caracter
+                                estado_sec = "c61"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c61":
+                            if caracter == "A":
+                                lexema_actual += caracter
+                                estado_sec = "c62"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c62":
+                            if caracter == "S":
+                                lexema_actual += caracter
+                                new_token += 1
+                                cel = Token(6, "Celdas", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(cel)
+                                lexema_actual = ""
+                                estado_sec = "c63"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c63":
+                            if caracter == "=":
+                                lexema_actual += caracter
+                                new_token += 1
+                                eq = Token(11, "Igual", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(eq)
+                                lexema_actual = ""
+                                estado_sec = "c64"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c64":
+                            if caracter == "{":
+                                lexema_actual += caracter
+                                new_token += 1
+                                a_ll = Token(14, "Abre llave", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(a_ll)
+                                lexema_actual = ""
+                                estado_sec = "c65"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c65":
+                            if caracter == "[":
+                                lexema_actual += caracter
+                                estado_sec = "c66"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c66":
+                            if self.is_number(caracter):
+                                lexema_actual += caracter
+                                estado_sec = "c67"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                lexema_actual += caracter
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c67":
+                            if self.is_number(caracter):
+                                lexema_actual += caracter
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                lexema_actual += caracter
+                                estado_sec = "c67.5"
+                            elif caracter == ",":
+                                lexema_actual += caracter
+                                estado_sec = "c68"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c67.5":
+                            if caracter == ",":
+                                lexema_actual += caracter
+                                estado_sec = "c68"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                lexema_actual += caracter
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c68":
+                            if self.is_number(caracter):
+                                lexema_actual += caracter
+                                estado_sec = "c69"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                lexema_actual += caracter
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c69":
+                            if self.is_number(caracter):
+                                lexema_actual += caracter
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                lexema_actual += caracter
+                                estado_sec = "c69.5"
+                            elif caracter == ",":
+                                lexema_actual += caracter
+                                estado_sec = "c70"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c69.5":
+                            if caracter == ",":
+                                lexema_actual += caracter
+                                estado_sec = "c70"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                lexema_actual += caracter
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c70":
+                            if caracter == "T":
+                                lexema_actual += caracter
+                                estado_sec = "c71"
+                            elif caracter == "F":
+                                lexema_actual += caracter
+                                estado_sec = "c75"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c71":
+                            if caracter == "R":
+                                lexema_actual += caracter
+                                estado_sec = "c72"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c72":
+                            if caracter == "U":
+                                lexema_actual += caracter
+                                estado_sec = "c73"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c73":
+                            if caracter == "E":
+                                lexema_actual += caracter
+                                estado_sec = "c74"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c74":
+                            if caracter == ",":
+                                lexema_actual += caracter
+                                estado_sec = "c80"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                lexema_actual += caracter
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c75":
+                            if caracter == "A":
+                                lexema_actual += caracter
+                                estado_sec = "c76"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c76":
+                            if caracter == "L":
+                                lexema_actual += caracter
+                                estado_sec = "c77"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c77":
+                            if caracter == "S":
+                                lexema_actual += caracter
+                                estado_sec = "c78"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c78":
+                            if caracter == "E":
+                                lexema_actual += caracter
+                                estado_sec = "c79"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c79":
+                            if caracter == ",":
+                                lexema_actual += caracter
+                                estado_sec = "c80"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                lexema_actual += caracter
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c80":
+                            if caracter == "#":
+                                lexema_actual += caracter
+                                estado_sec = "c81"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                lexema_actual += caracter
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c81":
+                            if self.is_hexadecimal_letter(caracter) or self.is_number(caracter):
+                                lexema_actual += caracter
+                                estado_sec = "c82"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c82":
+                            if self.is_hexadecimal_letter(caracter) or self.is_number(caracter):
+                                lexema_actual += caracter
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                lexema_actual += caracter
+                                estado_sec = "c82.5"
+                            elif caracter == "]":
+                                lexema_actual += caracter
+                                new_token += 1
+                                cell = Token(15, "Celda", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(cell)
+                                lexema_actual = ""
+                                estado_sec = "c83"
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c82.5":
+                            if caracter == "]":
+                                lexema_actual += caracter
+                                new_token += 1
+                                cell = Token(15, "Celda", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(cell)
+                                lexema_actual = ""
+                                estado_sec = "c83"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                lexema_actual += caracter
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c83":
+                            if caracter == ",":
+                                lexema_actual += caracter
+                                new_token += 1
+                                com = Token(16, "Coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(com)
+                                lexema_actual = ""
+                                estado_sec = "c65"
+                            elif caracter == "}":
+                                lexema_actual += caracter
+                                new_token += 1
+                                c_ll = Token(17, "Cierra llave", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(c_ll)
+                                lexema_actual = ""
+                                estado_sec = "c84"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c84":
+                            if caracter == ";":
+                                lexema_actual += caracter
+                                new_token += 1
+                                p_c = Token(18, "Punto y coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(p_c)
+                                lexema_actual = ""
+                                estado_sec = "c85"
+                            elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                pass
+                            else:
+                                # TODO Error léxico, caracter no válido
+                                pass
+                        elif estado_sec == "c85":
+                            sections += 1
+                            if sections == 7:
+                                estado_sec = "c0"
+                                sections = 0
+                                estado_file = "a1"
+                            else:
+                                estado_sec = "c0"
                 elif estado_file == "a1":
                     if caracter == "@":
                         lexema_actual += caracter
                         estado_file = "a2"
                     elif caracter == "$":
-                        #Fin del archivo
+                        # TODO Fin del archivo
+                        pass
+                    elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
                         pass
                     else:
-                        # Error léxico, caracter no válido
+                        # TODO Error léxico, caracter no válido
                         pass
                 elif estado_file == "a2":
                     if caracter == "@":
                         lexema_actual += caracter
                         estado_file = "a3"
                     else:
-                        # Error léxico, caracter no válido
+                        # TODO Error léxico, caracter no válido
                         pass
                 elif estado_file == "a3":
                     if caracter == "@":
                         lexema_actual += caracter
                         estado_file = "a4"
                     else:
-                        # Error léxico, caracter no válido
+                        # TODO Error léxico, caracter no válido
                         pass
                 elif estado_file == "a4":
                     if caracter == "@":
                         lexema_actual += caracter
+                        new_token += 1
+                        sep = Token(19, "Separador", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                        tokens_leidos.append(sep)
+                        lexema_actual = ""
                         estado_file = "a5"
                     else:
-                        # Error léxico, caracter no válido
+                        # TODO Error léxico, caracter no válido
                         pass
-                elif estado_file == "a5":
-                    if estado_img == "b0":
-                        pass
-                    elif estado_img == "b1":
-                        pass
-                    elif estado_img == "b2":
-                        pass
-                    elif estado_img == "b3":
-                        pass
-                    elif estado_img == "b4":
-                        pass
-                    elif estado_img == "b5":
-                        pass
-                    elif estado_img == "b6":
-                        pass
-                    elif estado_img == "b7":
-                        pass
-                    estado_file = "a1"
         else:
             pass
 
