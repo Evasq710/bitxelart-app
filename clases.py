@@ -8,11 +8,20 @@ class Token:
         self.fila = fila
         self.columna = columna
     
+    def already_read(self):
+        return self.leido
+
     def token_leido(self):
         self.leido = True
     
     def reinicio_token(self):
         self.leido = False
+
+class Error:
+    def __init__ (self, numero, fila, columna):
+        self.numero = numero
+        self.fila = fila
+        self.columna = columna
 
 class Imagen:
     def __init__(self, titulo, ancho, alto, filas, columnas, celdas, filtros = None):
