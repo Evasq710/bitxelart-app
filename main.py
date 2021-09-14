@@ -64,16 +64,43 @@ class Interfaz:
         title.place(x=500, y=70)
 
         self.frame4 = LabelFrame(self.window,bg="white", text="Reportes")
+        self.frame4_no_file = Frame(self.frame4, bg="white")
+        self.frame4_no_file.place(x=0, y=0, relheight=1, relwidth=1)
+        load_img4 = PhotoImage(file="images/sad.png")
+        load_lb4 = Label(self.frame4_no_file, image=load_img4, bg="white")
+        load_lb4.photo = load_img4
+        load_lb4.place(x=10, y=10, width=300, height=300)
+        title1= Label(self.frame4_no_file, text="No se ha cargado ningún archivo al programa.", font=("Consolas", 20), bg="white")
+        title1.place(x=320, y=120)
+
         self.frame3 = LabelFrame(self.window,bg="white", text="Imágenes")
+        self.frame3_no_file = Frame(self.frame3, bg="white")
+        self.frame3_no_file.place(x=0, y=0, relheight=1, relwidth=1)
+        load_img3 = PhotoImage(file="images/sad.png")
+        load_lb3 = Label(self.frame3_no_file, image=load_img3, bg="white")
+        load_lb3.photo = load_img3
+        load_lb3.place(x=10, y=10, width=300, height=300)
+        title1= Label(self.frame3_no_file, text="No se ha cargado ningún archivo al programa.", font=("Consolas", 20), bg="white")
+        title1.place(x=320, y=120)
+
         self.frame2 = LabelFrame(self.window,bg="white", text="Analizar Archivo")
+        self.frame2_no_file = Frame(self.frame2, bg="white")
+        self.frame2_no_file.place(x=0, y=0, relheight=1, relwidth=1)
+        load_img2 = PhotoImage(file="images/sad.png")
+        load_lb2 = Label(self.frame2_no_file, image=load_img2, bg="white")
+        load_lb2.photo = load_img2
+        load_lb2.place(x=10, y=10, width=300, height=300)
+        title1= Label(self.frame2_no_file, text="No se ha cargado ningún archivo al programa.", font=("Consolas", 20), bg="white")
+        title1.place(x=320, y=120)
+
         self.frame1 = LabelFrame(self.window,bg="white", text="Cagar Archivo")
-        self.frame_no_file = Frame(self.frame1, bg="white")
-        self.frame_no_file.place(x=0, y=0, relheight=1, relwidth=1)
-        load_img = PhotoImage(file="images/load.png")
-        load_lb = Label(self.frame_no_file, image=load_img, bg="white")
-        load_lb.photo = load_img
+        self.frame1_no_file = Frame(self.frame1, bg="white")
+        self.frame1_no_file.place(x=0, y=0, relheight=1, relwidth=1)
+        load_img1 = PhotoImage(file="images/load.png")
+        load_lb = Label(self.frame1_no_file, image=load_img1, bg="white")
+        load_lb.photo = load_img1
         load_lb.place(x=10, y=10, width=300, height=300)
-        title1= Label(self.frame_no_file, text="No se ha cargado ningún archivo al programa.", font=("Consolas", 20), bg="white")
+        title1= Label(self.frame1_no_file, text="No se ha cargado ningún archivo al programa.", font=("Consolas", 20), bg="white")
         title1.place(x=320, y=120)
         
         for frame in (self.frame1, self.frame2, self.frame3, self.frame4):
@@ -85,7 +112,7 @@ class Interfaz:
         self.cargar_btn = Button(frame_btn, text="Cargar Archivo", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame1.tkraise(), self.abrirArchivo()])
         self.cargar_btn.grid(row=0, column=0, padx=20)
 
-        self.analizar_btn = Button(frame_btn, text="Analizar Archivo y\ngenerar HTML", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame2.tkraise()])
+        self.analizar_btn = Button(frame_btn, text="Analizar Archivo y\ngenerar HTML", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame2.tkraise(), self.analizar_archivo()])
         self.analizar_btn.grid(row=0, column=1, padx=20)
 
         self.imagenes_btn = Button(frame_btn, text="Imagenes", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame3.tkraise()])
@@ -116,9 +143,9 @@ class Interfaz:
             texto_cargado = True
             self.frame_file = Frame(self.frame1, bg="white")
             self.frame_file.place(x=0, y=0, relheight=1, relwidth=1)
-            load_img = PhotoImage(file="images/loaded.png")
-            load_lb = Label(self.frame_file, image=load_img, bg="white")
-            load_lb.photo = load_img
+            load_img1 = PhotoImage(file="images/loaded.png")
+            load_lb = Label(self.frame_file, image=load_img1, bg="white")
+            load_lb.photo = load_img1
             load_lb.place(x=10, y=10, width=300, height=300)
             title1= Label(self.frame_file, text="El archivo se encuentra cargado al programa.", font=("Consolas", 20), bg="white")
             title1.place(x=320, y=110)
@@ -130,6 +157,12 @@ class Interfaz:
         except Exception as e:
             print(e)
             print("->No se seleccionó un archivo")
+    
+    def analizar_archivo(self):
+        if texto_cargado:
+            pass
+        else:
+            pass
 
 if __name__ == '__main__':
     ventana = Tk()
