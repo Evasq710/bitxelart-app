@@ -139,6 +139,7 @@ class Interfaz:
         try:
             archivo = open(name_file)
             texto = archivo.read()
+            texto += "$"
             texto_doc = texto
             texto_cargado = True
             self.frame_file = Frame(self.frame1, bg="white")
@@ -158,9 +159,103 @@ class Interfaz:
             print(e)
             print("->No se seleccionó un archivo")
     
+    def is_ascii(self, caracter):
+        if (ord(caracter) >= 32 and ord(caracter) <= 126) or ord(caracter) == 130 or (ord(caracter) >= 160 and ord(caracter) <= 165):
+            return True
+        return False
+
+    def is_number(self, caracter):
+        if ord(caracter) >= 48 and ord(caracter) <= 57:
+            return True
+        return False
+
     def analizar_archivo(self):
+        global texto_doc
+        global texto_cargado
         if texto_cargado:
-            pass
+            fila = 1
+            columna = 0
+            estado_file = "a0"
+            estado_img = "b0"
+            lexema_actual = ""
+            for caracter in texto_doc:
+                # Control Filas - columnas
+                if ord(caracter) == 9:
+                    columna += 4
+                elif ord(caracter) == 10:
+                    columna = 0
+                    fila += 1
+                elif ord(caracter) == 32:
+                    columna += 1
+                else:
+                    columna +=1
+                # Estados
+                if estado_file == "a0":
+                    if estado_img == "b0":
+                        pass
+                    elif estado_img == "b1":
+                        pass
+                    elif estado_img == "b2":
+                        pass
+                    elif estado_img == "b3":
+                        pass
+                    elif estado_img == "b4":
+                        pass
+                    elif estado_img == "b5":
+                        pass
+                    elif estado_img == "b6":
+                        pass
+                    elif estado_img == "b7":
+                        pass
+                elif estado_file == "a1":
+                    if caracter == "@":
+                        lexema_actual += caracter
+                        estado_file = "a2"
+                    elif caracter == "$":
+                        #Fin del archivo
+                        pass
+                    else:
+                        # Error léxico, caracter no válido
+                        pass
+                elif estado_file == "a2":
+                    if caracter == "@":
+                        lexema_actual += caracter
+                        estado_file = "a3"
+                    else:
+                        # Error léxico, caracter no válido
+                        pass
+                elif estado_file == "a3":
+                    if caracter == "@":
+                        lexema_actual += caracter
+                        estado_file = "a4"
+                    else:
+                        # Error léxico, caracter no válido
+                        pass
+                elif estado_file == "a4":
+                    if caracter == "@":
+                        lexema_actual += caracter
+                        estado_file = "a5"
+                    else:
+                        # Error léxico, caracter no válido
+                        pass
+                elif estado_file == "a5":
+                    if estado_img == "b0":
+                        pass
+                    elif estado_img == "b1":
+                        pass
+                    elif estado_img == "b2":
+                        pass
+                    elif estado_img == "b3":
+                        pass
+                    elif estado_img == "b4":
+                        pass
+                    elif estado_img == "b5":
+                        pass
+                    elif estado_img == "b6":
+                        pass
+                    elif estado_img == "b7":
+                        pass
+                    estado_file = "a1"
         else:
             pass
 
