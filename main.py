@@ -1,7 +1,8 @@
 from tkinter import *
 from tkinter import filedialog
-from clases import Token, Imagen, Celda, Error
+from clases import Token, Imagen, Error
 import os
+import traceback
 
 tokens = []
 titulo = Token(1, "titulo")
@@ -171,22 +172,25 @@ class Interfaz:
                 self.analizar_archivo()
                 title3= Label(self.frame_file, text="Archivo analizado exitosamente.", font=("Consolas", 20), bg="white")
                 title3.place(x=320, y=190)
-                print("\nTOKENS:")
-                for x in tokens_leidos:
-                    print(x.nombre, "FILA:", str(x.fila), "COLUMNA:", str(x.columna), "LEXEMA:", x.lexema)
-                print("\nERRORES:")
-                for y in errores_encontrados:
-                    print(y.caracter, y.descripcion, "FILA:", str(y.fila), "COLUMNA:", str(y.columna))
-                print("->Análisis finalizado con éxito")
-            except Exception as ex:
-                print(ex)
+                # print("\nTOKENS:")
+                # for x in tokens_leidos:
+                #     print(x.nombre, "FILA:", str(x.fila), "COLUMNA:", str(x.columna), "LEXEMA:", x.lexema)
+                # print("\nERRORES:")
+                # for y in errores_encontrados:
+                #     print(y.caracter, y.descripcion, "FILA:", str(y.fila), "COLUMNA:", str(y.columna))
+                # print("\nIMÁGENES:")
+                # for z in imagenes_cargadas:
+                #     print(z.titulo, str(z.ancho), str(z.alto), str(z.filas), str(z.columnas), len(z.matriz_celdas), z.filtros)
+                # print("->Análisis finalizado con éxito")
+            except Exception:
+                traceback.print_exc()
                 title3= Label(self.frame_file, text="Ocurrió un error en el analizador léxico :(", font=("Consolas", 20), bg="white")
                 title3.place(x=320, y=190)
                 print("-> Ocurrió un error en el analizador léxico.")
             archivo.close()
             
-        except Exception as e:
-            print(e)
+        except Exception:
+            traceback.print_exc()
             print("->No se seleccionó un archivo")
     
     def is_ascii(self, caracter):
@@ -209,6 +213,8 @@ class Interfaz:
         global texto_cargado
         global tokens
         global tokens_leidos
+        global imagenes_cargadas
+        global errores_encontrados
         if texto_cargado:
             fila = 1
             columna = 0
@@ -223,6 +229,26 @@ class Interfaz:
             act_alto = False
             act_filas = False
             act_columnas = False
+            titulo_guardado = False
+            titulo_aux = ''
+            ancho_guardado = False
+            ancho_aux = 0
+            alto_guardado = False
+            alto_aux = 0
+            filas_guardado = False
+            filas_aux = 0
+            columnas_guardado = False
+            columnas_aux = 0
+            celdas_guardado = False
+            posx_aux = ''
+            posy_aux = ''
+            boolean_aux = None
+            color_aux =''
+            celda_aux = None
+            celdas_aux = []
+            filtros_guardado = False
+            imagen_aux = None
+            filtros_aux = []
             for caracter in texto_doc:
                 # Control Filas - columnas
                 if ord(caracter) == 9: # tab
@@ -261,26 +287,84 @@ class Interfaz:
                             elif caracter == "@":
                                 for tkn in tokens:
                                     tkn.reinicio_token()
-                                if sections == 6:
-                                    # TODO Imagen sin filtros
-                                    sections = 0
-                                    lexema_actual += caracter
-                                    estado_file = "a2"
+                                if sections == 6 and titulo_guardado and ancho_guardado and alto_guardado and filas_guardado and columnas_guardado and celdas_guardado:
+                                    imagen_aux = Imagen(titulo_aux, ancho_aux, alto_aux, filas_aux, columnas_aux, celdas_aux)
+                                    celdas_no_encontradas = imagen_aux.nuevas_celdas()
+                                    for celda in celdas_no_encontradas:
+                                        new_error += 1
+                                        e_celda = Error(new_error, 'Celda: (' + str(celda.pos_x) + ', ' + str(celda.pos_y) + ')', "No se encontró la celda. Posición máxima: (" + str(columnas_aux - 1) + ", " + str(filas_aux - 1) + ")", '-', '-')
+                                        errores_encontrados.append(e_celda)
+                                    imagenes_cargadas.append(imagen_aux)
                                 else:
-                                    # TODO Faltan secciones de imagen o hubo error en el Separador
-                                    sections = 0
-                                    lexema_actual += caracter
-                                    estado_file = "a2"
+                                    descripcion = "Se encontró un separador de imagen, hacen falta las siguientes secciones de imagen: "
+                                    if not titulo_guardado:
+                                        descripcion += 'TITULO, '
+                                    if not ancho_guardado:
+                                        descripcion += 'ANCHO, '
+                                    if not alto_guardado:
+                                        descripcion += 'ALTO, '
+                                    if not filas_guardado:
+                                        descripcion += 'FILAS, '
+                                    if not columnas_guardado:
+                                        descripcion += 'COLUMNAS, '
+                                    if not celdas_guardado:
+                                        descripcion += 'CELDAS, '
+                                    descripcion += "no fue posible guardar la imagen."
+                                    new_error += 1
+                                    e_secciones_faltantes = Error(new_error, caracter, descripcion, fila, columna-(len(lexema_actual)-1))
+                                    errores_encontrados.append(e_secciones_faltantes)
+                                titulo_guardado = False
+                                titulo_aux = ''
+                                ancho_guardado = False
+                                ancho_aux = 0
+                                alto_guardado = False
+                                alto_aux = 0
+                                filas_guardado = False
+                                filas_aux = 0
+                                columnas_guardado = False
+                                columnas_aux = 0
+                                celdas_guardado = False
+                                posx_aux = ''
+                                posy_aux = ''
+                                boolean_aux = None
+                                color_aux =''
+                                celda_aux = None
+                                celdas_aux = []
+                                filtros_guardado = False
+                                imagen_aux = None
+                                filtros_aux = []
+                                sections = 0
+                                lexema_actual += caracter
+                                estado_file = "a2"
                             elif caracter == "$":
                                 for tkn in tokens:
                                     tkn.reinicio_token()
-                                # TODO Fin del archivo
-                                if sections == 6:
-                                    # TODO Imagen sin filtros
-                                    pass
+                                if sections == 6 and titulo_guardado and ancho_guardado and alto_guardado and filas_guardado and columnas_guardado and celdas_guardado:
+                                    imagen_aux = Imagen(titulo_aux, ancho_aux, alto_aux, filas_aux, columnas_aux, celdas_aux)
+                                    celdas_no_encontradas = imagen_aux.nuevas_celdas()
+                                    for celda in celdas_no_encontradas:
+                                        new_error += 1
+                                        e_celda = Error(new_error, 'Celda: (' + str(celda.pos_x) + ', ' + str(celda.pos_y) + ')', "No se encontró la celda. Posición máxima: (" + str(columnas_aux - 1) + ", " + str(filas_aux - 1) + ")", '-', '-')
+                                        errores_encontrados.append(e_celda)
+                                    imagenes_cargadas.append(imagen_aux)
                                 else:
-                                    # TODO Faltan secciones de imagen
-                                    pass
+                                    descripcion = "Se encontró un separador de imagen, hacen falta las siguientes secciones de imagen: "
+                                    if not titulo_guardado:
+                                        descripcion += 'TITULO, '
+                                    if not ancho_guardado:
+                                        descripcion += 'ANCHO, '
+                                    if not alto_guardado:
+                                        descripcion += 'ALTO, '
+                                    if not filas_guardado:
+                                        descripcion += 'FILAS, '
+                                    if not columnas_guardado:
+                                        descripcion += 'COLUMNAS, '
+                                    if not celdas_guardado:
+                                        descripcion += 'CELDAS, '
+                                    descripcion += "no fue posible guardar la imagen."
+                                    new_error += 1
+                                    e_secciones_faltantes = Error(new_error, caracter, descripcion, fila, columna-(len(lexema_actual)-1))
+                                    errores_encontrados.append(e_secciones_faltantes)
                             elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
                                 pass
                             else:
@@ -384,6 +468,7 @@ class Interfaz:
                                 new_token += 1
                                 cad = Token(12, "Cadena", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
                                 tokens_leidos.append(cad)
+                                titulo_aux = lexema_actual
                                 lexema_actual = ""
                                 estado_sec = "c10"
                             else:
@@ -403,10 +488,12 @@ class Interfaz:
                                     if tkn.id_token == 1:
                                         tkn.token_leido()
                                         break
+                                titulo_guardado = True
                                 estado_sec = "c85"
                             elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
                                 pass
                             else:
+                                titulo_aux = ''
                                 new_error += 1
                                 e_p_c = Error(new_error, caracter, "Se esperaba el token ';' que finaliza la sección del 'TITULO'.", fila, columna-(len(lexema_actual)-1))
                                 errores_encontrados.append(e_p_c)
@@ -569,6 +656,34 @@ class Interfaz:
                                 new_token += 1
                                 num = Token(13, "Numero", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)))
                                 tokens_leidos.append(num)
+                                if act_ancho:
+                                    try:
+                                        ancho_aux = int(lexema_actual)
+                                        ancho_guardado = True
+                                    except Exception as e:
+                                        print(e)
+                                        print("-> Ocurrió un error en el parseo a entero del lexema " + lexema_actual + ", correspondiente al ANCHO.")
+                                elif act_alto:
+                                    try:
+                                        alto_aux = int(lexema_actual)
+                                        alto_guardado = True
+                                    except Exception as e:
+                                        print(e)
+                                        print("-> Ocurrió un error en el parseo a entero del lexema " + lexema_actual + ", correspondiente al ALTO.")
+                                elif act_filas:
+                                    try:
+                                        filas_aux = int(lexema_actual)
+                                        filas_guardado = True
+                                    except Exception as e:
+                                        print(e)
+                                        print("-> Ocurrió un error en el parseo a entero del lexema " + lexema_actual + ", correspondiente al FILAS.")
+                                elif act_columnas:
+                                    try:
+                                        columnas_aux = int(lexema_actual)
+                                        columnas_guardado = True
+                                    except Exception as e:
+                                        print(e)
+                                        print("-> Ocurrió un error en el parseo a entero del lexema " + lexema_actual + ", correspondiente al COLUMNAS.")
                                 lexema_actual = ""
                                 lexema_actual += caracter
                                 new_token += 1
@@ -852,6 +967,7 @@ class Interfaz:
                                 new_token += 1
                                 m_x = Token(8, "MirrorX", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
                                 tokens_leidos.append(m_x)
+                                filtros_aux.append(lexema_actual)
                                 lexema_actual = ""
                                 estado_sec = "c37"
                             elif caracter == "Y":
@@ -859,6 +975,7 @@ class Interfaz:
                                 new_token += 1
                                 m_y = Token(9, "MirrorY", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
                                 tokens_leidos.append(m_y)
+                                filtros_aux.append(lexema_actual)
                                 lexema_actual = ""
                                 estado_sec = "c38"
                             else:
@@ -881,6 +998,7 @@ class Interfaz:
                                 p_c = Token(18, "Punto y coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
                                 tokens_leidos.append(p_c)
                                 lexema_actual = ""
+                                filtros_guardado = True
                                 for tkn in tokens:
                                     if tkn.id_token == 7:
                                         tkn.token_leido()
@@ -892,6 +1010,7 @@ class Interfaz:
                                 new_error += 1
                                 e_seccion = Error(new_error, caracter, "Se esperaba la ',' ó ';' para un nuevo filtro ó finalizar la sección 'FILTROS' respectivamente.", fila, columna-(len(lexema_actual)-1))
                                 errores_encontrados.append(e_seccion)
+                                filtros_aux = []
                                 lexema_actual = ""
                                 estado_sec = "c0"
                         elif estado_sec == "c38":
@@ -908,6 +1027,7 @@ class Interfaz:
                                 p_c = Token(18, "Punto y coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
                                 tokens_leidos.append(p_c)
                                 lexema_actual = ""
+                                filtros_guardado = True
                                 for tkn in tokens:
                                     if tkn.id_token == 7:
                                         tkn.token_leido()
@@ -919,6 +1039,7 @@ class Interfaz:
                                 new_error += 1
                                 e_seccion = Error(new_error, caracter, "Se esperaba la ',' ó ';' para un nuevo filtro ó finalizar la sección 'FILTROS' respectivamente.", fila, columna-(len(lexema_actual)-1))
                                 errores_encontrados.append(e_seccion)
+                                filtros_aux = []
                                 lexema_actual = ""
                                 estado_sec = "c0"
                         elif estado_sec == "c39":
@@ -1027,6 +1148,7 @@ class Interfaz:
                                 new_token += 1
                                 d_m = Token(10, "DoubleMirror", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
                                 tokens_leidos.append(d_m)
+                                filtros_aux.append(lexema_actual)
                                 lexema_actual = ""
                                 estado_sec = "c50"
                             else:
@@ -1049,6 +1171,7 @@ class Interfaz:
                                 p_c = Token(18, "Punto y coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
                                 tokens_leidos.append(p_c)
                                 lexema_actual = ""
+                                filtros_guardado = True
                                 for tkn in tokens:
                                     if tkn.id_token == 7:
                                         tkn.token_leido()
@@ -1267,6 +1390,7 @@ class Interfaz:
                         elif estado_sec == "c66":
                             if self.is_number(caracter):
                                 lexema_actual += caracter
+                                posx_aux += caracter
                                 estado_sec = "c67"
                             elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
                                 lexema_actual += caracter
@@ -1279,6 +1403,7 @@ class Interfaz:
                         elif estado_sec == "c67":
                             if self.is_number(caracter):
                                 lexema_actual += caracter
+                                posx_aux += caracter
                             elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
                                 lexema_actual += caracter
                                 estado_sec = "c67.5"
@@ -1306,6 +1431,7 @@ class Interfaz:
                         elif estado_sec == "c68":
                             if self.is_number(caracter):
                                 lexema_actual += caracter
+                                posy_aux += caracter
                                 estado_sec = "c69"
                             elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
                                 lexema_actual += caracter
@@ -1318,6 +1444,7 @@ class Interfaz:
                         elif estado_sec == "c69":
                             if self.is_number(caracter):
                                 lexema_actual += caracter
+                                posy_aux += caracter
                             elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
                                 lexema_actual += caracter
                                 estado_sec = "c69.5"
@@ -1378,6 +1505,7 @@ class Interfaz:
                         elif estado_sec == "c73":
                             if caracter == "E":
                                 lexema_actual += caracter
+                                boolean_aux = True
                                 estado_sec = "c74"
                             else:
                                 new_error += 1
@@ -1430,6 +1558,7 @@ class Interfaz:
                         elif estado_sec == "c78":
                             if caracter == "E":
                                 lexema_actual += caracter
+                                boolean_aux = False
                                 estado_sec = "c79"
                             else:
                                 new_error += 1
@@ -1452,6 +1581,7 @@ class Interfaz:
                         elif estado_sec == "c80":
                             if caracter == "#":
                                 lexema_actual += caracter
+                                color_aux += caracter
                                 estado_sec = "c81"
                             elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
                                 lexema_actual += caracter
@@ -1464,6 +1594,7 @@ class Interfaz:
                         elif estado_sec == "c81":
                             if self.is_hexadecimal_letter(caracter) or self.is_number(caracter):
                                 lexema_actual += caracter
+                                color_aux += caracter
                                 estado_sec = "c82"
                             else:
                                 new_error += 1
@@ -1474,6 +1605,7 @@ class Interfaz:
                         elif estado_sec == "c82":
                             if self.is_hexadecimal_letter(caracter) or self.is_number(caracter):
                                 lexema_actual += caracter
+                                color_aux += caracter
                             elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
                                 lexema_actual += caracter
                                 estado_sec = "c82.5"
@@ -1483,6 +1615,18 @@ class Interfaz:
                                 cell = Token(15, "Celda", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
                                 tokens_leidos.append(cell)
                                 lexema_actual = ""
+                                try:
+                                    posx_aux = int(posx_aux)
+                                    posy_aux = int(posy_aux)
+                                    celda_aux = Imagen.Celda(posx_aux, posy_aux, color = color_aux, is_painted = boolean_aux)
+                                    celdas_aux.append(celda_aux)
+                                    posx_aux = ''
+                                    posy_aux = ''
+                                    color_aux =  ''
+                                    boolean_aux = None
+                                except Exception as e:
+                                    print(e)
+                                    print("-> Ocurrió un error en el parseo de las posiciones x y de una celda.")
                                 estado_sec = "c83"
                             else:
                                 new_error += 1
@@ -1497,6 +1641,18 @@ class Interfaz:
                                 cell = Token(15, "Celda", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
                                 tokens_leidos.append(cell)
                                 lexema_actual = ""
+                                try:
+                                    posx_aux = int(posx_aux)
+                                    posy_aux = int(posy_aux)
+                                    celda_aux = Imagen.Celda(posx_aux, posy_aux, color = color_aux, is_painted = boolean_aux)
+                                    celdas_aux.append(celda_aux)
+                                    posx_aux = ''
+                                    posy_aux = ''
+                                    color_aux =  ''
+                                    boolean_aux = None
+                                except Exception as e:
+                                    print(e)
+                                    print("-> Ocurrió un error en el parseo de las posiciones x y de una celda.")
                                 estado_sec = "c83"
                             elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
                                 lexema_actual += caracter
@@ -1535,6 +1691,7 @@ class Interfaz:
                                 new_token += 1
                                 p_c = Token(18, "Punto y coma", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
                                 tokens_leidos.append(p_c)
+                                celdas_guardado = True
                                 lexema_actual = ""
                                 for tkn in tokens:
                                     if tkn.id_token == 6:
@@ -1552,6 +1709,33 @@ class Interfaz:
                         elif estado_sec == "c85":
                             sections += 1
                             if sections == 7:
+                                imagen_aux = Imagen(titulo_aux, ancho_aux, alto_aux, filas_aux, columnas_aux, celdas_aux, filtros = filtros_aux)
+                                celdas_no_encontradas = imagen_aux.nuevas_celdas()
+                                for celda in celdas_no_encontradas:
+                                    new_error += 1
+                                    e_celda = Error(new_error, 'Celda: (' + str(celda.pos_x) + ', ' + str(celda.pos_y) + ')', "No se encontró la celda. Posición máxima: (" + str(columnas_aux - 1) + ", " + str(filas_aux - 1) + ")", '-', '-')
+                                    errores_encontrados.append(e_celda)
+                                imagenes_cargadas.append(imagen_aux)
+                                titulo_guardado = False
+                                titulo_aux = ''
+                                ancho_guardado = False
+                                ancho_aux = 0
+                                alto_guardado = False
+                                alto_aux = 0
+                                filas_guardado = False
+                                filas_aux = 0
+                                columnas_guardado = False
+                                columnas_aux = 0
+                                celdas_guardado = False
+                                posx_aux = ''
+                                posy_aux = ''
+                                boolean_aux = None
+                                color_aux =''
+                                celda_aux = None
+                                celdas_aux = []
+                                filtros_guardado = False
+                                imagen_aux = None
+                                filtros_aux = []
                                 estado_sec = "c0"
                                 sections = 0
                                 for tkn in tokens:
@@ -1572,8 +1756,6 @@ class Interfaz:
                         new_error += 1
                         e_arroba = Error(new_error, caracter, "Se esperaba el primer '@' del token 'Separador'.", fila, columna-(len(lexema_actual)-1))
                         errores_encontrados.append(e_arroba)
-                        lexema_actual = ""
-                        estado_file = "a0"
                 elif estado_file == "a2":
                     if caracter == "@":
                         lexema_actual += caracter
@@ -1582,8 +1764,8 @@ class Interfaz:
                         new_error += 1
                         e_arroba = Error(new_error, caracter, "Se esperaba el segundo '@' del token 'Separador'.", fila, columna-(len(lexema_actual)-1))
                         errores_encontrados.append(e_arroba)
+                        estado_file = "a1"
                         lexema_actual = ""
-                        estado_file = "a0"
                 elif estado_file == "a3":
                     if caracter == "@":
                         lexema_actual += caracter
@@ -1592,8 +1774,8 @@ class Interfaz:
                         new_error += 1
                         e_arroba = Error(new_error, caracter, "Se esperaba el tercer '@' del token 'Separador'.", fila, columna-(len(lexema_actual)-1))
                         errores_encontrados.append(e_arroba)
+                        estado_file = "a1"
                         lexema_actual = ""
-                        estado_file = "a0"
                 elif estado_file == "a4":
                     if caracter == "@":
                         lexema_actual += caracter
@@ -1607,7 +1789,7 @@ class Interfaz:
                         e_arroba = Error(new_error, caracter, "Se esperaba el cuarto '@' del token 'Separador'.", fila, columna-(len(lexema_actual)-1))
                         errores_encontrados.append(e_arroba)
                         lexema_actual = ""
-                        estado_file = "a0"
+                        estado_file = "a1"
         else:
             pass
 
