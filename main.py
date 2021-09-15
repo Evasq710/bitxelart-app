@@ -57,11 +57,11 @@ class Interfaz:
         self.window.state('zoomed')
         
         imagen = PhotoImage(file = "images/fondo.png")
-        fondo = Label(self.window, image = imagen, bg="cornsilk")
+        fondo = Label(self.window, image = imagen, bg="white")
         fondo.photo = imagen
         fondo.place(x=0, y=0, relwidth=1, relheight=1)
 
-        title = Label(self.window, text="Bixelart App", font=("Consolas", 60, "bold"), bg="cornsilk")
+        title = Label(self.window, text="Bixelart App", font=("Consolas", 60, "bold"), bg="white")
         title.place(x=500, y=70)
 
         self.frame4 = LabelFrame(self.window,bg="white", text="Reportes")
@@ -70,9 +70,9 @@ class Interfaz:
         load_img4 = PhotoImage(file="images/sad.png")
         load_lb4 = Label(self.frame4_no_file, image=load_img4, bg="white")
         load_lb4.photo = load_img4
-        load_lb4.place(x=10, y=10, width=300, height=300)
+        load_lb4.place(x=10, y=40, width=300, height=300)
         title1= Label(self.frame4_no_file, text="No se ha cargado ningún archivo al programa.", font=("Consolas", 20), bg="white")
-        title1.place(x=320, y=120)
+        title1.place(x=320, y=150)
 
         self.frame3 = LabelFrame(self.window,bg="white", text="Imágenes")
         self.frame3_no_file = Frame(self.frame3, bg="white")
@@ -80,9 +80,9 @@ class Interfaz:
         load_img3 = PhotoImage(file="images/sad.png")
         load_lb3 = Label(self.frame3_no_file, image=load_img3, bg="white")
         load_lb3.photo = load_img3
-        load_lb3.place(x=10, y=10, width=300, height=300)
+        load_lb3.place(x=10, y=40, width=300, height=300)
         title1= Label(self.frame3_no_file, text="No se ha cargado ningún archivo al programa.", font=("Consolas", 20), bg="white")
-        title1.place(x=320, y=120)
+        title1.place(x=320, y=150)
 
         self.frame2 = LabelFrame(self.window,bg="white", text="Analizar Archivo")
         self.frame2_no_file = Frame(self.frame2, bg="white")
@@ -90,9 +90,9 @@ class Interfaz:
         load_img2 = PhotoImage(file="images/sad.png")
         load_lb2 = Label(self.frame2_no_file, image=load_img2, bg="white")
         load_lb2.photo = load_img2
-        load_lb2.place(x=10, y=10, width=300, height=300)
+        load_lb2.place(x=10, y=40, width=300, height=300)
         title1= Label(self.frame2_no_file, text="No se ha cargado ningún archivo al programa.", font=("Consolas", 20), bg="white")
-        title1.place(x=320, y=120)
+        title1.place(x=320, y=150)
 
         self.frame1 = LabelFrame(self.window,bg="white", text="Cagar Archivo")
         self.frame1_no_file = Frame(self.frame1, bg="white")
@@ -100,14 +100,14 @@ class Interfaz:
         load_img1 = PhotoImage(file="images/load.png")
         load_lb = Label(self.frame1_no_file, image=load_img1, bg="white")
         load_lb.photo = load_img1
-        load_lb.place(x=10, y=10, width=300, height=300)
+        load_lb.place(x=10, y=40, width=300, height=300)
         title1= Label(self.frame1_no_file, text="No se ha cargado ningún archivo al programa.", font=("Consolas", 20), bg="white")
-        title1.place(x=320, y=120)
+        title1.place(x=320, y=150)
         
         for frame in (self.frame1, self.frame2, self.frame3, self.frame4):
-            frame.place(x=300, y=280, width=1000, height=350)
+            frame.place(x=250, y=280, width=1050, height=420)
 
-        frame_btn = Frame(self.window, bg="cornsilk")
+        frame_btn = Frame(self.window, bg="white")
         frame_btn.place(x=300, y=200)
 
         self.cargar_btn = Button(frame_btn, text="Cargar Archivo", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame1.tkraise(), self.abrirArchivo()])
@@ -154,30 +154,34 @@ class Interfaz:
             load_img1 = PhotoImage(file="images/loaded.png")
             load_lb = Label(self.frame_file, image=load_img1, bg="white")
             load_lb.photo = load_img1
-            load_lb.place(x=10, y=10, width=300, height=300)
+            load_lb.place(x=10, y=40, width=300, height=300)
             title1= Label(self.frame_file, text="El archivo se encuentra cargado al programa.", font=("Consolas", 20), bg="white")
-            title1.place(x=320, y=100)
+            title1.place(x=320, y=110)
             name_archivo_actual = os.path.basename(name_file)
             title2= Label(self.frame_file, text=name_archivo_actual, font=("Consolas", 20), bg="white")
-            title2.place(x=320, y=140)
+            title2.place(x=320, y=150)
             print("->Archivo leído con éxito")
 
             try:
                 title3= Label(self.frame_file, text="Analizando el archivo...", font=("Consolas", 20), bg="white")
-                title3.place(x=320, y=180)
+                title3.place(x=320, y=190)
                 tokens_leidos = []
                 imagenes_cargadas = []
                 errores_encontrados = []
                 self.analizar_archivo()
                 title3= Label(self.frame_file, text="Archivo analizado exitosamente.", font=("Consolas", 20), bg="white")
-                title3.place(x=320, y=180)
+                title3.place(x=320, y=190)
+                print("\nTOKENS:")
                 for x in tokens_leidos:
                     print(x.nombre, "FILA:", str(x.fila), "COLUMNA:", str(x.columna), "LEXEMA:", x.lexema)
+                print("\nERRORES:")
+                for y in errores_encontrados:
+                    print(y.caracter, y.descripcion, "FILA:", str(y.fila), "COLUMNA:", str(y.columna))
                 print("->Análisis finalizado con éxito")
             except Exception as ex:
                 print(ex)
                 title3= Label(self.frame_file, text="Ocurrió un error en el analizador léxico :(", font=("Consolas", 20), bg="white")
-                title3.place(x=320, y=180)
+                title3.place(x=320, y=190)
                 print("-> Ocurrió un error en el analizador léxico.")
             archivo.close()
             
