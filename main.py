@@ -3,6 +3,7 @@ from tkinter import filedialog
 from clases import Token, Imagen, Error
 import os
 import traceback
+import imgkit
 
 tokens = []
 titulo = Token(1, "titulo")
@@ -106,7 +107,7 @@ class Interfaz:
         title1.place(x=320, y=150)
         
         for frame in (self.frame1, self.frame2, self.frame3, self.frame4):
-            frame.place(x=250, y=280, width=1050, height=420)
+            frame.place(x=250, y=280, width=1050, height=480)
 
         frame_btn = Frame(self.window, bg="white")
         frame_btn.place(x=300, y=200)
@@ -117,7 +118,7 @@ class Interfaz:
         self.analizar_btn = Button(frame_btn, text="Analizar Archivo y\ngenerar HTML", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame2.tkraise(), self.imagenes_html()])
         self.analizar_btn.grid(row=0, column=1, padx=20)
 
-        self.imagenes_btn = Button(frame_btn, text="Imagenes", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame3.tkraise()])
+        self.imagenes_btn = Button(frame_btn, text="Imagenes", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame3.tkraise(), self.imagenes_programa()])
         self.imagenes_btn.grid(row=0, column=2, padx=20)
 
         self.reportes_btn = Button(frame_btn, text="Ver Reportes HTML", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame4.tkraise()])
@@ -175,13 +176,13 @@ class Interfaz:
                 # print("\nTOKENS:")
                 # for x in tokens_leidos:
                 #     print(x.nombre, "FILA:", str(x.fila), "COLUMNA:", str(x.columna), "LEXEMA:", x.lexema)
-                print("\nERRORES:")
-                for y in errores_encontrados:
-                    print(y.caracter, y.descripcion, "FILA:", str(y.fila), "COLUMNA:", str(y.columna))
-                print("\nIMÁGENES:")
-                for z in imagenes_cargadas:
-                    print(z.titulo, str(z.ancho), str(z.alto), str(z.filas), str(z.columnas), len(z.matriz_celdas), z.filtros)
-                print("->Análisis finalizado con éxito")
+                # print("\nERRORES:")
+                # for y in errores_encontrados:
+                #     print(y.caracter, y.descripcion, "FILA:", str(y.fila), "COLUMNA:", str(y.columna))
+                # print("\nIMÁGENES:")
+                # for z in imagenes_cargadas:
+                #     print(z.titulo, str(z.ancho), str(z.alto), str(z.filas), str(z.columnas), len(z.matriz_celdas), z.filtros)
+                # print("->Análisis finalizado con éxito")
             except Exception:
                 traceback.print_exc()
                 title3= Label(self.frame_file, text="Ocurrió un error en el analizador léxico :(", font=("Consolas", 20), bg="white")
@@ -1841,14 +1842,17 @@ class Interfaz:
             load_lb.place(x=10, y=40, width=300, height=300)
             title1= Label(self.frame2_file, text="Generando las imágenes en formato HTML...", font=("Consolas", 20), bg="white")
             title1.place(x=320, y=150)
+            imagenes = 0
             for imagen in imagenes_cargadas:
-                self.generar_html(imagen)
+                img = self.generar_html(imagen)
+                imagenes += img
             title1= Label(self.frame2_file, text="Imágenes en formato HTML generadas exitosamente.", font=("Consolas", 20), bg="white")
             title1.place(x=320, y=150)
-            title1= Label(self.frame2_file, text=f"Imágenes generadas: {len(imagenes_cargadas)}", font=("Consolas", 20), bg="white")
+            title1= Label(self.frame2_file, text=f"Imágenes generadas: {imagenes}", font=("Consolas", 20), bg="white")
             title1.place(x=320, y=190)
     
-    def generar_html(self, imagen):
+    def generar_html(self, imagen, jpg = False):
+        imagenes_generadas = 0
         ancho_pixel = int(imagen.ancho / imagen.columnas)
         alto_pixel = int(imagen.alto / imagen.filas)
         css = '''body {
@@ -1873,14 +1877,15 @@ class Interfaz:
         #not_painted {
             background: #FFFFFF00;
         }'''
-        html = f'''<!DOCTYPE html>
+        html = '''<!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]}.css">
-            <title>{imagen.titulo[1:len(imagen.titulo) - 1]}</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">'''
+        if not jpg:
+            html += f'\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]}.css">'
+        html += f'''\n<title>{imagen.titulo[1:len(imagen.titulo) - 1]}</title>
         </head>
         <body>
             <div class="imagen">'''
@@ -1899,14 +1904,23 @@ class Interfaz:
         </body>
         </html>'''
         try:
-            # Para evitar incluir las comillas en el nombre
-            imagen_original = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.html", "w")
+            ruta_html = ''
+            if not jpg:
+                ruta_html = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.html"
+            else:
+                ruta_html = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.html"
+            imagen_original = open(ruta_html, "w")
             imagen_original.write(html)
             imagen_original.close()
-            # Para evitar incluir las comillas en el nombre
-            styles_original = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.css", "w")
+            ruta_css = ''
+            if not jpg:
+                ruta_css = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.css"
+            else:
+                ruta_css = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.css"
+            styles_original = open(ruta_css, "w")
             styles_original.write(css)
             styles_original.close()
+            imagenes_generadas += 1
         except Exception:
             traceback.print_exc()
             print(f"-> Error en la creación del HTML - CSS de la imagen original: {imagen.titulo[1:len(imagen.titulo) - 1]}")
@@ -1941,8 +1955,9 @@ class Interfaz:
                     <meta http-equiv="X-UA-Compatible" content="IE=edge">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">'''
                 if filtro == "MIRRORX":
-                    html_filtro += f'''\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.css">
-                        <title>{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX</title>
+                    if not jpg:
+                        html_filtro += f'\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.css">'
+                    html_filtro += f'''\n<title>{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX</title>
                     </head>
                     <body>
                         <div class="imagen">'''
@@ -1961,12 +1976,23 @@ class Interfaz:
                     </body>
                     </html>'''
                     try:
-                        imagen_mirrorx = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.html", "w")
+                        ruta_html = ''
+                        if not jpg:
+                            ruta_html = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.html"
+                        else:
+                            ruta_html = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.html"
+                        imagen_mirrorx = open(ruta_html, "w")
                         imagen_mirrorx.write(html_filtro)
                         imagen_mirrorx.close()
-                        styles_mirrorx = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.css", "w")
+                        ruta_css = ''
+                        if not jpg:
+                            ruta_css = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.css"
+                        else:
+                            ruta_css = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.css"
+                        styles_mirrorx = open(ruta_css, "w")
                         styles_mirrorx.write(css_filtro)
                         styles_mirrorx.close()
+                        imagenes_generadas += 1
                     except Exception:
                         traceback.print_exc()
                         print(f"-> Error en la creación del HTML - CSS de la imagen MIRRORX: {imagen.titulo[1:len(imagen.titulo) - 1]}")
@@ -1991,12 +2017,23 @@ class Interfaz:
                     </body>
                     </html>'''
                     try:
-                        imagen_mirrory = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.html", "w")
+                        ruta_html = ''
+                        if not jpg:
+                            ruta_html = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.html"
+                        else:
+                            ruta_html = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.html"
+                        imagen_mirrory = open(ruta_html, "w")
                         imagen_mirrory.write(html_filtro)
                         imagen_mirrory.close()
-                        styles_mirrory = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.css", "w")
+                        ruta_css = ''
+                        if not jpg:
+                            ruta_css = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.css"
+                        else:
+                            ruta_css = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.css"
+                        styles_mirrory = open(ruta_css, "w")
                         styles_mirrory.write(css_filtro)
                         styles_mirrory.close()
+                        imagenes_generadas += 1
                     except Exception:
                         traceback.print_exc()
                         print(f"-> Error en la creación del HTML - CSS de la imagen MIRRORY: {imagen.titulo[1:len(imagen.titulo) - 1]}")
@@ -2021,17 +2058,93 @@ class Interfaz:
                     </body>
                     </html>'''
                     try:
-                        imagen_double = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.html", "w")
+                        ruta_html = ''
+                        if not jpg:
+                            ruta_html = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.html"
+                        else:
+                            ruta_html = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.html"
+                        imagen_double = open(ruta_html, "w")
                         imagen_double.write(html_filtro)
                         imagen_double.close()
-                        styles_double = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.css", "w")
+                        ruta_css = ''
+                        if not jpg:
+                            ruta_css = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.css"
+                        else:
+                            ruta_css = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.css"
+                        styles_double = open(ruta_css, "w")
                         styles_double.write(css_filtro)
                         styles_double.close()
+                        imagenes_generadas += 1
                     except Exception:
                         traceback.print_exc()
                         print(f"-> Error en la creación del HTML - CSS de la imagen DOUBLEMIRROR: {imagen.titulo[1:len(imagen.titulo) - 1]}")
                 else:
                     print(f"-> {filtro} no es un filtro válido :(.")
+        return imagenes_generadas
+
+    def imagenes_programa(self):
+        global texto_cargado
+        global imagenes_cargadas
+        if texto_cargado:
+            self.frame3_file = Frame(self.frame3, bg="white")
+            self.frame3_file.place(x=0, y=0, relheight=1, relwidth=1)
+            lb = Label(self.frame3_file, text="Imagen a mostrar:", font=("Consolas", 14), bg="white")
+            lb.place(x=250, y=30)
+            titulo_imagen = StringVar(self.frame3_file)
+            titulo_imagen.set('Seleccione una imagen')
+            titulos_imagenes = []
+            for imagen in imagenes_cargadas:
+                titulos_imagenes.append(imagen.titulo)
+            lista_imagenes = OptionMenu(self.frame3_file, titulo_imagen, *titulos_imagenes)
+            lista_imagenes.place(x=450, y=30)
+            mostrar_btn = Button(self.frame3_file, text="Mostrar imagen", font=("Consolas", 14), bg="green yellow", command=lambda:[self.mostrar_imagen(titulo_imagen.get())])
+            mostrar_btn.place(x=650, y=25)
+    
+    def mostrar_imagen(self, titulo_seleccionado):
+        global imagenes_cargadas
+        path_wkthmltoimage = 'C:\Program Files\wkhtmltopdf\\bin\wkhtmltoimage.exe'
+        config = imgkit.config(wkhtmltoimage=path_wkthmltoimage)
+        for imagen in imagenes_cargadas:
+            if imagen.titulo == titulo_seleccionado:
+                ruta_html = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.html"
+                ruta_css = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.css"
+                ruta_jpg = f"Imagenes JPG/{imagen.titulo[1:len(imagen.titulo) - 1]}.jpg"
+                try:
+                    img = self.generar_html(imagen, jpg=True)
+                    options = {'width': imagen.ancho + 20, 'height': imagen.alto + 20 }
+                    imgkit.from_file(ruta_html, ruta_jpg, css=ruta_css, options=options, config=config)
+                    if imagen.filtros is not None:
+                        for filtro in imagen.filtros:
+                            if filtro == "MIRRORX":
+                                try:
+                                    ruta_html_filtro = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.html"
+                                    ruta_css_filtro = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.css"
+                                    ruta_filtro = f"Imagenes JPG/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.jpg"
+                                    imgkit.from_file(ruta_html_filtro, ruta_filtro, css=ruta_css_filtro, options=options, config=config)
+                                except:
+                                    traceback.print_exc()
+                                    print("-> Error en la conversión de HTML a JPG del fitro MIRRORX de la imagen " + imagen.titulo)
+                            elif filtro == "MIRRORY":
+                                try:
+                                    ruta_html_filtro = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.html"
+                                    ruta_css_filtro = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.css"
+                                    ruta_filtro = f"Imagenes JPG/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.jpg"
+                                    imgkit.from_file(ruta_html_filtro, ruta_filtro, css=ruta_css_filtro, options=options, config=config)
+                                except:
+                                    traceback.print_exc()
+                                    print("-> Error en la conversión de HTML a JPG del fitro MIRRORY de la imagen " + imagen.titulo)
+                            elif filtro == "DOUBLEMIRROR":
+                                try:
+                                    ruta_html_filtro = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.html"
+                                    ruta_css_filtro = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.css"
+                                    ruta_filtro = f"Imagenes JPG/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.jpg"
+                                    imgkit.from_file(ruta_html_filtro, ruta_filtro, css=ruta_css_filtro, options=options, config=config)
+                                except:
+                                    traceback.print_exc()
+                                    print("-> Error en la conversión de HTML a JPG del fitro DOUBLEMIRROR de la imagen " + imagen.titulo)
+                except:
+                    traceback.print_exc()
+                    print("-> Error en la conversión de HTML a JPG de la imagen original" + imagen.titulo)
 
 if __name__ == '__main__':
     ventana = Tk()
