@@ -68,7 +68,7 @@ class Interfaz:
         self.frame4 = LabelFrame(self.window,bg="white", text="Reportes")
         self.frame4_no_file = Frame(self.frame4, bg="white")
         self.frame4_no_file.place(x=0, y=0, relheight=1, relwidth=1)
-        load_img4 = PhotoImage(file="images/sad.png")
+        load_img4 = PhotoImage(file="images/question3.png")
         load_lb4 = Label(self.frame4_no_file, image=load_img4, bg="white")
         load_lb4.photo = load_img4
         load_lb4.place(x=10, y=40, width=300, height=300)
@@ -78,7 +78,7 @@ class Interfaz:
         self.frame3 = LabelFrame(self.window,bg="white", text="Imágenes")
         self.frame3_no_file = Frame(self.frame3, bg="white")
         self.frame3_no_file.place(x=0, y=0, relheight=1, relwidth=1)
-        load_img3 = PhotoImage(file="images/sad.png")
+        load_img3 = PhotoImage(file="images/question2.png")
         load_lb3 = Label(self.frame3_no_file, image=load_img3, bg="white")
         load_lb3.photo = load_img3
         load_lb3.place(x=10, y=40, width=300, height=300)
@@ -88,7 +88,7 @@ class Interfaz:
         self.frame2 = LabelFrame(self.window,bg="white", text="Analizar Archivo")
         self.frame2_no_file = Frame(self.frame2, bg="white")
         self.frame2_no_file.place(x=0, y=0, relheight=1, relwidth=1)
-        load_img2 = PhotoImage(file="images/sad.png")
+        load_img2 = PhotoImage(file="images/question1.png")
         load_lb2 = Label(self.frame2_no_file, image=load_img2, bg="white")
         load_lb2.photo = load_img2
         load_lb2.place(x=10, y=40, width=300, height=300)
@@ -114,7 +114,7 @@ class Interfaz:
         self.cargar_btn = Button(frame_btn, text="Cargar Archivo", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame1.tkraise(), self.abrirArchivo()])
         self.cargar_btn.grid(row=0, column=0, padx=20)
 
-        self.analizar_btn = Button(frame_btn, text="Analizar Archivo y\ngenerar HTML", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame2.tkraise()])
+        self.analizar_btn = Button(frame_btn, text="Analizar Archivo y\ngenerar HTML", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame2.tkraise(), self.imagenes_html()])
         self.analizar_btn.grid(row=0, column=1, padx=20)
 
         self.imagenes_btn = Button(frame_btn, text="Imagenes", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame3.tkraise()])
@@ -175,13 +175,13 @@ class Interfaz:
                 # print("\nTOKENS:")
                 # for x in tokens_leidos:
                 #     print(x.nombre, "FILA:", str(x.fila), "COLUMNA:", str(x.columna), "LEXEMA:", x.lexema)
-                # print("\nERRORES:")
-                # for y in errores_encontrados:
-                #     print(y.caracter, y.descripcion, "FILA:", str(y.fila), "COLUMNA:", str(y.columna))
-                # print("\nIMÁGENES:")
-                # for z in imagenes_cargadas:
-                #     print(z.titulo, str(z.ancho), str(z.alto), str(z.filas), str(z.columnas), len(z.matriz_celdas), z.filtros)
-                # print("->Análisis finalizado con éxito")
+                print("\nERRORES:")
+                for y in errores_encontrados:
+                    print(y.caracter, y.descripcion, "FILA:", str(y.fila), "COLUMNA:", str(y.columna))
+                print("\nIMÁGENES:")
+                for z in imagenes_cargadas:
+                    print(z.titulo, str(z.ancho), str(z.alto), str(z.filas), str(z.columnas), len(z.matriz_celdas), z.filtros)
+                print("->Análisis finalizado con éxito")
             except Exception:
                 traceback.print_exc()
                 title3= Label(self.frame_file, text="Ocurrió un error en el analizador léxico :(", font=("Consolas", 20), bg="white")
@@ -249,6 +249,7 @@ class Interfaz:
             filtros_guardado = False
             imagen_aux = None
             filtros_aux = []
+            imagen_sin_guardar = False
             for caracter in texto_doc:
                 # Control Filas - columnas
                 if ord(caracter) == 9: # tab
@@ -262,6 +263,7 @@ class Interfaz:
                     columna +=1
                 # Estados
                 if estado_file == "a0" or estado_file == "a5":
+                    imagen_sin_guardar = True
                     if estado_img == "b0" and sections < 7:
                         if estado_sec == "c0":
                             if caracter == "T":
@@ -295,6 +297,7 @@ class Interfaz:
                                         e_celda = Error(new_error, 'Celda: (' + str(celda.pos_x) + ', ' + str(celda.pos_y) + ')', "No se encontró la celda. Posición máxima: (" + str(columnas_aux - 1) + ", " + str(filas_aux - 1) + ")", '-', '-')
                                         errores_encontrados.append(e_celda)
                                     imagenes_cargadas.append(imagen_aux)
+                                    imagen_sin_guardar = False
                                 else:
                                     descripcion = "Se encontró un separador de imagen, hacen falta las siguientes secciones de imagen: "
                                     if not titulo_guardado:
@@ -313,6 +316,7 @@ class Interfaz:
                                     new_error += 1
                                     e_secciones_faltantes = Error(new_error, caracter, descripcion, fila, columna-(len(lexema_actual)-1))
                                     errores_encontrados.append(e_secciones_faltantes)
+                                    imagen_sin_guardar = False
                                 titulo_guardado = False
                                 titulo_aux = ''
                                 ancho_guardado = False
@@ -347,8 +351,9 @@ class Interfaz:
                                         e_celda = Error(new_error, 'Celda: (' + str(celda.pos_x) + ', ' + str(celda.pos_y) + ')', "No se encontró la celda. Posición máxima: (" + str(columnas_aux - 1) + ", " + str(filas_aux - 1) + ")", '-', '-')
                                         errores_encontrados.append(e_celda)
                                     imagenes_cargadas.append(imagen_aux)
+                                    imagen_sin_guardar = False
                                 else:
-                                    descripcion = "Se encontró un separador de imagen, hacen falta las siguientes secciones de imagen: "
+                                    descripcion = "Se finalizó la lectura del archivo, hacen falta las siguientes secciones de imagen: "
                                     if not titulo_guardado:
                                         descripcion += 'TITULO, '
                                     if not ancho_guardado:
@@ -365,6 +370,7 @@ class Interfaz:
                                     new_error += 1
                                     e_secciones_faltantes = Error(new_error, caracter, descripcion, fila, columna-(len(lexema_actual)-1))
                                     errores_encontrados.append(e_secciones_faltantes)
+                                    imagen_sin_guardar = False
                             elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
                                 pass
                             else:
@@ -1716,6 +1722,7 @@ class Interfaz:
                                     e_celda = Error(new_error, 'Celda: (' + str(celda.pos_x) + ', ' + str(celda.pos_y) + ')', "No se encontró la celda. Posición máxima: (" + str(columnas_aux - 1) + ", " + str(filas_aux - 1) + ")", '-', '-')
                                     errores_encontrados.append(e_celda)
                                 imagenes_cargadas.append(imagen_aux)
+                                imagen_sin_guardar = False
                                 titulo_guardado = False
                                 titulo_aux = ''
                                 ancho_guardado = False
@@ -1790,8 +1797,241 @@ class Interfaz:
                         errores_encontrados.append(e_arroba)
                         lexema_actual = ""
                         estado_file = "a1"
+            if imagen_sin_guardar:
+                for tkn in tokens:
+                    tkn.reinicio_token()
+                if sections == 6 and titulo_guardado and ancho_guardado and alto_guardado and filas_guardado and columnas_guardado and celdas_guardado:
+                    imagen_aux = Imagen(titulo_aux, ancho_aux, alto_aux, filas_aux, columnas_aux, celdas_aux)
+                    celdas_no_encontradas = imagen_aux.nuevas_celdas()
+                    for celda in celdas_no_encontradas:
+                        new_error += 1
+                        e_celda = Error(new_error, 'Celda: (' + str(celda.pos_x) + ', ' + str(celda.pos_y) + ')', "No se encontró la celda. Posición máxima: (" + str(columnas_aux - 1) + ", " + str(filas_aux - 1) + ")", '-', '-')
+                        errores_encontrados.append(e_celda)
+                    imagenes_cargadas.append(imagen_aux)
+                else:
+                    descripcion = "Se finalizó la lectura del archivo, hacen falta las siguientes secciones de imagen: "
+                    if not titulo_guardado:
+                        descripcion += 'TITULO, '
+                    if not ancho_guardado:
+                        descripcion += 'ANCHO, '
+                    if not alto_guardado:
+                        descripcion += 'ALTO, '
+                    if not filas_guardado:
+                        descripcion += 'FILAS, '
+                    if not columnas_guardado:
+                        descripcion += 'COLUMNAS, '
+                    if not celdas_guardado:
+                        descripcion += 'CELDAS, '
+                    descripcion += "no fue posible guardar la imagen."
+                    new_error += 1
+                    e_secciones_faltantes = Error(new_error, caracter, descripcion, fila, columna-(len(lexema_actual)-1))
+                    errores_encontrados.append(e_secciones_faltantes)
         else:
             pass
+
+    def imagenes_html(self):
+        global texto_cargado
+        global imagenes_cargadas
+        if texto_cargado:
+            self.frame2_file = Frame(self.frame2, bg="white")
+            self.frame2_file.place(x=0, y=0, relheight=1, relwidth=1)
+            load_img2 = PhotoImage(file="images/html.png")
+            load_lb = Label(self.frame2_file, image=load_img2, bg="white")
+            load_lb.photo = load_img2
+            load_lb.place(x=10, y=40, width=300, height=300)
+            title1= Label(self.frame2_file, text="Generando las imágenes en formato HTML...", font=("Consolas", 20), bg="white")
+            title1.place(x=320, y=150)
+            for imagen in imagenes_cargadas:
+                self.generar_html(imagen)
+            title1= Label(self.frame2_file, text="Imágenes en formato HTML generadas exitosamente.", font=("Consolas", 20), bg="white")
+            title1.place(x=320, y=150)
+            title1= Label(self.frame2_file, text=f"Imágenes generadas: {len(imagenes_cargadas)}", font=("Consolas", 20), bg="white")
+            title1.place(x=320, y=190)
+    
+    def generar_html(self, imagen):
+        ancho_pixel = int(imagen.ancho / imagen.columnas)
+        alto_pixel = int(imagen.alto / imagen.filas)
+        css = '''body {
+            background: #756d5a;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .imagen {'''
+        css += f'''
+            width: {imagen.ancho}px;
+            height: {imagen.alto}px;'''
+        css += '''\n}
+        .pixel {'''
+        css += f'''
+            width: {ancho_pixel}px;
+            height: {alto_pixel}px;'''
+        css +='''\nfloat: left;
+            box-shadow: 0px 0px 1px #ffffff;
+        }
+        #not_painted {
+            background: #FFFFFF00;
+        }'''
+        html = f'''<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]}.css">
+            <title>{imagen.titulo[1:len(imagen.titulo) - 1]}</title>
+        </head>
+        <body>
+            <div class="imagen">'''
+        for celda in imagen.matriz_celdas:
+            if celda.is_painted:
+                html += f'\n<div class="pixel" id="x{celda.pos_x}y{celda.pos_y}"></div>'
+                css += f'\n#x{celda.pos_x}y{celda.pos_y}'
+                css += ' {'
+                css += f'''
+                    background: {celda.color};'''
+                css += '\n}'
+            else:
+                html += '\n<div class="pixel" id="not_painted"></div>'
+        html += '''
+            </div>
+        </body>
+        </html>'''
+        try:
+            # Para evitar incluir las comillas en el nombre
+            imagen_original = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.html", "w")
+            imagen_original.write(html)
+            imagen_original.close()
+            # Para evitar incluir las comillas en el nombre
+            styles_original = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.css", "w")
+            styles_original.write(css)
+            styles_original.close()
+        except Exception:
+            traceback.print_exc()
+            print(f"-> Error en la creación del HTML - CSS de la imagen original: {imagen.titulo[1:len(imagen.titulo) - 1]}")
+        if imagen.filtros is not None:
+            for filtro in imagen.filtros:
+                css_filtro = '''body {
+                    background: #756d5a;
+                    height: 100vh;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                .imagen {'''
+                css_filtro += f'''
+                    width: {imagen.ancho}px;
+                    height: {imagen.alto}px;'''
+                css_filtro += '''\n}
+                .pixel {'''
+                css_filtro += f'''
+                    width: {ancho_pixel}px;
+                    height: {alto_pixel}px;'''
+                css_filtro +='''\nfloat: left;
+                    box-shadow: 0px 0px 1px #ffffff;
+                }
+                #not_painted {
+                    background: #FFFFFF00;
+                }'''
+                html_filtro = '''<!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">'''
+                if filtro == "MIRRORX":
+                    html_filtro += f'''\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.css">
+                        <title>{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX</title>
+                    </head>
+                    <body>
+                        <div class="imagen">'''
+                    for celda in imagen.matriz_celdas_mirrorx:
+                        if celda.is_painted:
+                            html_filtro += f'\n<div class="pixel" id="x{celda.pos_x}y{celda.pos_y}"></div>'
+                            css_filtro += f'\n#x{celda.pos_x}y{celda.pos_y}'
+                            css_filtro += ' {'
+                            css_filtro += f'''
+                                background: {celda.color};'''
+                            css_filtro += '\n}'
+                        else:
+                            html_filtro += '\n<div class="pixel" id="not_painted"></div>'
+                    html_filtro += '''
+                        </div>
+                    </body>
+                    </html>'''
+                    try:
+                        imagen_mirrorx = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.html", "w")
+                        imagen_mirrorx.write(html_filtro)
+                        imagen_mirrorx.close()
+                        styles_mirrorx = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.css", "w")
+                        styles_mirrorx.write(css_filtro)
+                        styles_mirrorx.close()
+                    except Exception:
+                        traceback.print_exc()
+                        print(f"-> Error en la creación del HTML - CSS de la imagen MIRRORX: {imagen.titulo[1:len(imagen.titulo) - 1]}")
+                elif filtro == "MIRRORY":
+                    html_filtro += f'''\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.css">
+                        <title>{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY</title>
+                    </head>
+                    <body>
+                        <div class="imagen">'''
+                    for celda in imagen.matriz_celdas_mirrory:
+                        if celda.is_painted:
+                            html_filtro += f'\n<div class="pixel" id="x{celda.pos_x}y{celda.pos_y}"></div>'
+                            css_filtro += f'\n#x{celda.pos_x}y{celda.pos_y}'
+                            css_filtro += ' {'
+                            css_filtro += f'''
+                                background: {celda.color};'''
+                            css_filtro += '\n}'
+                        else:
+                            html_filtro += '\n<div class="pixel" id="not_painted"></div>'
+                    html_filtro += '''
+                        </div>
+                    </body>
+                    </html>'''
+                    try:
+                        imagen_mirrory = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.html", "w")
+                        imagen_mirrory.write(html_filtro)
+                        imagen_mirrory.close()
+                        styles_mirrory = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.css", "w")
+                        styles_mirrory.write(css_filtro)
+                        styles_mirrory.close()
+                    except Exception:
+                        traceback.print_exc()
+                        print(f"-> Error en la creación del HTML - CSS de la imagen MIRRORY: {imagen.titulo[1:len(imagen.titulo) - 1]}")
+                elif filtro == "DOUBLEMIRROR":
+                    html_filtro += f'''\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.css">
+                        <title>{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR</title>
+                    </head>
+                    <body>
+                        <div class="imagen">'''
+                    for celda in imagen.matriz_celdas_double:
+                        if celda.is_painted:
+                            html_filtro += f'\n<div class="pixel" id="x{celda.pos_x}y{celda.pos_y}"></div>'
+                            css_filtro += f'\n#x{celda.pos_x}y{celda.pos_y}'
+                            css_filtro += ' {'
+                            css_filtro += f'''
+                                background: {celda.color};'''
+                            css_filtro += '\n}'
+                        else:
+                            html_filtro += '\n<div class="pixel" id="not_painted"></div>'
+                    html_filtro += '''
+                        </div>
+                    </body>
+                    </html>'''
+                    try:
+                        imagen_double = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.html", "w")
+                        imagen_double.write(html_filtro)
+                        imagen_double.close()
+                        styles_double = open(f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.css", "w")
+                        styles_double.write(css_filtro)
+                        styles_double.close()
+                    except Exception:
+                        traceback.print_exc()
+                        print(f"-> Error en la creación del HTML - CSS de la imagen DOUBLEMIRROR: {imagen.titulo[1:len(imagen.titulo) - 1]}")
+                else:
+                    print(f"-> {filtro} no es un filtro válido :(.")
 
 if __name__ == '__main__':
     ventana = Tk()

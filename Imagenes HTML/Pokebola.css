@@ -1,0 +1,332 @@
+body {
+            background: #756d5a;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .imagen {
+            width: 300px;
+            height: 300px;
+}
+        .pixel {
+            width: 25px;
+            height: 25px;
+float: left;
+            box-shadow: 0px 0px 1px #ffffff;
+        }
+        #not_painted {
+            background: #FFFFFF00;
+        }
+#x4y0 {
+                    background: #000000;
+}
+#x5y0 {
+                    background: #000000;
+}
+#x6y0 {
+                    background: #000000;
+}
+#x7y0 {
+                    background: #000000;
+}
+#x2y1 {
+                    background: #000000;
+}
+#x3y1 {
+                    background: #000000;
+}
+#x4y1 {
+                    background: #FF0000;
+}
+#x5y1 {
+                    background: #FF0000;
+}
+#x6y1 {
+                    background: #FF0000;
+}
+#x7y1 {
+                    background: #FF0000;
+}
+#x8y1 {
+                    background: #000000;
+}
+#x9y1 {
+                    background: #000000;
+}
+#x1y2 {
+                    background: #000000;
+}
+#x2y2 {
+                    background: #FF0000;
+}
+#x3y2 {
+                    background: #FF0000;
+}
+#x4y2 {
+                    background: #FFFFFF;
+}
+#x5y2 {
+                    background: #FF0000;
+}
+#x6y2 {
+                    background: #FF0000;
+}
+#x7y2 {
+                    background: #FF0000;
+}
+#x8y2 {
+                    background: #FF0000;
+}
+#x9y2 {
+                    background: #FF0000;
+}
+#x10y2 {
+                    background: #000000;
+}
+#x1y3 {
+                    background: #000000;
+}
+#x2y3 {
+                    background: #FF0000;
+}
+#x3y3 {
+                    background: #FFFFFF;
+}
+#x4y3 {
+                    background: #FFFFFF;
+}
+#x5y3 {
+                    background: #FFFFFF;
+}
+#x6y3 {
+                    background: #FF0000;
+}
+#x7y3 {
+                    background: #FF0000;
+}
+#x8y3 {
+                    background: #FF0000;
+}
+#x9y3 {
+                    background: #FF0000;
+}
+#x10y3 {
+                    background: #000000;
+}
+#x0y4 {
+                    background: #000000;
+}
+#x1y4 {
+                    background: #FF0000;
+}
+#x2y4 {
+                    background: #FF0000;
+}
+#x3y4 {
+                    background: #FF0000;
+}
+#x4y4 {
+                    background: #FFFFFF;
+}
+#x5y4 {
+                    background: #FF0000;
+}
+#x6y4 {
+                    background: #FF0000;
+}
+#x7y4 {
+                    background: #FF0000;
+}
+#x8y4 {
+                    background: #FF0000;
+}
+#x9y4 {
+                    background: #FF0000;
+}
+#x10y4 {
+                    background: #FF0000;
+}
+#x11y4 {
+                    background: #000000;
+}
+#x0y5 {
+                    background: #000000;
+}
+#x1y5 {
+                    background: #FF0000;
+}
+#x2y5 {
+                    background: #FF0000;
+}
+#x3y5 {
+                    background: #FF0000;
+}
+#x4y5 {
+                    background: #FF0000;
+}
+#x5y5 {
+                    background: #000000;
+}
+#x6y5 {
+                    background: #000000;
+}
+#x7y5 {
+                    background: #FF0000;
+}
+#x8y5 {
+                    background: #FF0000;
+}
+#x9y5 {
+                    background: #FF0000;
+}
+#x10y5 {
+                    background: #FF0000;
+}
+#x11y5 {
+                    background: #000000;
+}
+#x0y6 {
+                    background: #000000;
+}
+#x1y6 {
+                    background: #000000;
+}
+#x2y6 {
+                    background: #FF0000;
+}
+#x3y6 {
+                    background: #FF0000;
+}
+#x4y6 {
+                    background: #000000;
+}
+#x6y6 {
+                    background: #CCCAC0;
+}
+#x7y6 {
+                    background: #000000;
+}
+#x8y6 {
+                    background: #FF0000;
+}
+#x9y6 {
+                    background: #FF0000;
+}
+#x10y6 {
+                    background: #000000;
+}
+#x11y6 {
+                    background: #000000;
+}
+#x0y7 {
+                    background: #000000;
+}
+#x2y7 {
+                    background: #000000;
+}
+#x3y7 {
+                    background: #000000;
+}
+#x4y7 {
+                    background: #000000;
+}
+#x5y7 {
+                    background: #CCCAC0;
+}
+#x6y7 {
+                    background: #CCCAC0;
+}
+#x7y7 {
+                    background: #000000;
+}
+#x8y7 {
+                    background: #000000;
+}
+#x9y7 {
+                    background: #000000;
+}
+#x10y7 {
+                    background: #CCCAC0;
+}
+#x11y7 {
+                    background: #000000;
+}
+#x1y8 {
+                    background: #000000;
+}
+#x5y8 {
+                    background: #000000;
+}
+#x6y8 {
+                    background: #000000;
+}
+#x7y8 {
+                    background: #CCCAC0;
+}
+#x8y8 {
+                    background: #CCCAC0;
+}
+#x9y8 {
+                    background: #CCCAC0;
+}
+#x10y8 {
+                    background: #000000;
+}
+#x1y9 {
+                    background: #000000;
+}
+#x2y9 {
+                    background: #CCCAC0;
+}
+#x6y9 {
+                    background: #CCCAC0;
+}
+#x7y9 {
+                    background: #CCCAC0;
+}
+#x8y9 {
+                    background: #CCCAC0;
+}
+#x9y9 {
+                    background: #CCCAC0;
+}
+#x10y9 {
+                    background: #000000;
+}
+#x2y10 {
+                    background: #000000;
+}
+#x3y10 {
+                    background: #000000;
+}
+#x4y10 {
+                    background: #CCCAC0;
+}
+#x5y10 {
+                    background: #CCCAC0;
+}
+#x6y10 {
+                    background: #CCCAC0;
+}
+#x7y10 {
+                    background: #CCCAC0;
+}
+#x8y10 {
+                    background: #000000;
+}
+#x9y10 {
+                    background: #000000;
+}
+#x4y11 {
+                    background: #000000;
+}
+#x5y11 {
+                    background: #000000;
+}
+#x6y11 {
+                    background: #000000;
+}
+#x7y11 {
+                    background: #000000;
+}
