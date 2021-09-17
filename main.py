@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
+from PIL import ImageTk, Image
 from clases import Token, Imagen, Error
 import os
 import traceback
@@ -1997,8 +1998,9 @@ class Interfaz:
                         traceback.print_exc()
                         print(f"-> Error en la creación del HTML - CSS de la imagen MIRRORX: {imagen.titulo[1:len(imagen.titulo) - 1]}")
                 elif filtro == "MIRRORY":
-                    html_filtro += f'''\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.css">
-                        <title>{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY</title>
+                    if not jpg:
+                        html_filtro += f'\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.css">'
+                    html_filtro += f'''\n<title>{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY</title>
                     </head>
                     <body>
                         <div class="imagen">'''
@@ -2038,8 +2040,9 @@ class Interfaz:
                         traceback.print_exc()
                         print(f"-> Error en la creación del HTML - CSS de la imagen MIRRORY: {imagen.titulo[1:len(imagen.titulo) - 1]}")
                 elif filtro == "DOUBLEMIRROR":
-                    html_filtro += f'''\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.css">
-                        <title>{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR</title>
+                    if not jpg:
+                        html_filtro += f'\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.css">'
+                    html_filtro += f'''\n<title>{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR</title>
                     </head>
                     <body>
                         <div class="imagen">'''
@@ -2099,8 +2102,23 @@ class Interfaz:
             lista_imagenes.place(x=450, y=30)
             mostrar_btn = Button(self.frame3_file, text="Mostrar imagen", font=("Consolas", 14), bg="green yellow", command=lambda:[self.mostrar_imagen(titulo_imagen.get())])
             mostrar_btn.place(x=650, y=25)
+            self.frame_btn_filtros = Frame(self.frame3_file, bg="white")
+            self.frame_btn_filtros.place(x=75, y=100)
+            self.btn_original = Button(self.frame_btn_filtros, text="Original", font=("Consolas", 14), bg="aquamarine", state='disabled')
+            self.btn_original.pack(pady=10)
+            self.btn_mirrorx = Button(self.frame_btn_filtros, text="Mirror X", font=("Consolas", 14), bg="aquamarine", state='disabled')
+            self.btn_mirrorx.pack(pady=10)
+            self.btn_mirrory = Button(self.frame_btn_filtros, text="Mirror Y", font=("Consolas", 14), bg="aquamarine", state='disabled')
+            self.btn_mirrory.pack(pady=10)
+            self.btn_double = Button(self.frame_btn_filtros, text="Double Mirror", font=("Consolas", 14), bg="aquamarine", state='disabled')
+            self.btn_double.pack(pady=10)
+            self.frame_imagenes = Frame(self.frame3_file, bg="gray")
+            self.frame_imagenes.place(x=225, y=75, width=700, height=380)
+            self.lb_no_imagen = Label(self.frame_imagenes, text="No se ha seleccionado una imagen.", font=("Consolas", 14), bg="gray")
+            self.lb_no_imagen.pack(expand=True, fill=BOTH)
     
     def mostrar_imagen(self, titulo_seleccionado):
+        print("Titulo seleccionado: " + titulo_seleccionado)
         global imagenes_cargadas
         path_wkthmltoimage = 'C:\Program Files\wkhtmltopdf\\bin\wkhtmltoimage.exe'
         config = imgkit.config(wkhtmltoimage=path_wkthmltoimage)
@@ -2142,9 +2160,158 @@ class Interfaz:
                                 except:
                                     traceback.print_exc()
                                     print("-> Error en la conversión de HTML a JPG del fitro DOUBLEMIRROR de la imagen " + imagen.titulo)
+                    self.imagen_original_jpg(imagen)
                 except:
                     traceback.print_exc()
                     print("-> Error en la conversión de HTML a JPG de la imagen original" + imagen.titulo)
+                self.btn_original.config(state="normal", command= lambda:[self.imagen_original_jpg(imagen)])
+                self.btn_mirrorx.config(state="normal", command= lambda:[self.imagen_mirrorx_jpg(imagen)])
+                self.btn_mirrory.config(state="normal", command= lambda:[self.imagen_mirrory_jpg(imagen)])
+                self.btn_double.config(state="normal", command= lambda:[self.imagen_double_jpg(imagen)])
+                break
+    
+    def imagen_original_jpg(self, imagen):
+        try:
+            ancho_jpg = imagen.ancho + 20
+            alto_jpg = imagen.alto + 20
+            diferencia_ancho = 0
+            diferencia_alto = 0
+            if ancho_jpg > 700:
+                diferencia_ancho = ancho_jpg - 700 
+            if alto_jpg > 380:
+                diferencia_alto = alto_jpg - 380
+            ruta_jpg = f"Imagenes JPG/{imagen.titulo[1:len(imagen.titulo) - 1]}.jpg"
+            imagen_original = Image.open(ruta_jpg)
+            if diferencia_ancho != 0 or diferencia_alto != 0:
+                if diferencia_ancho > diferencia_alto:
+                    new_imagen = ImageTk.PhotoImage(imagen_original.resize((ancho_jpg - diferencia_ancho, alto_jpg - diferencia_ancho), Image.ANTIALIAS))
+                    self.lb_no_imagen.config(bg="white", text="", image=new_imagen, compound=CENTER)
+                    self.lb_no_imagen.photo = new_imagen
+                else:
+                    new_imagen = ImageTk.PhotoImage(imagen_original.resize((ancho_jpg - diferencia_alto, alto_jpg - diferencia_alto), Image.ANTIALIAS))
+                    self.lb_no_imagen.config(bg="white", text="", image=new_imagen, compound=CENTER)
+                    self.lb_no_imagen.photo = new_imagen
+            else:
+                new_imagen = ImageTk.PhotoImage(imagen_original)
+                self.lb_no_imagen.config(bg="white", text="", image=imagen, compound=CENTER)
+                self.lb_no_imagen.photo = new_imagen
+            imagen_original.close()
+        except:
+            traceback.print_exc()
+    
+    def imagen_mirrorx_jpg(self, imagen):
+        hay_filtro = False
+        if imagen.filtros is not None:
+            for filtro in imagen.filtros:
+                if filtro == "MIRRORX":
+                    hay_filtro = True
+                    try:
+                        ancho_jpg = imagen.ancho + 20
+                        alto_jpg = imagen.alto + 20
+                        diferencia_ancho = 0
+                        diferencia_alto = 0
+                        if ancho_jpg > 700:
+                            diferencia_ancho = ancho_jpg - 700 
+                        if alto_jpg > 380:
+                            diferencia_alto = alto_jpg - 380
+                        ruta_jpg = f"Imagenes JPG/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.jpg"
+                        imagen_original = Image.open(ruta_jpg)
+                        if diferencia_ancho != 0 or diferencia_alto != 0:
+                            if diferencia_ancho > diferencia_alto:
+                                new_imagen = ImageTk.PhotoImage(imagen_original.resize((ancho_jpg - diferencia_ancho, alto_jpg - diferencia_ancho), Image.ANTIALIAS))
+                                self.lb_no_imagen.config(bg="white", text="", image=new_imagen, compound=CENTER)
+                                self.lb_no_imagen.photo = new_imagen
+                            else:
+                                new_imagen = ImageTk.PhotoImage(imagen_original.resize((ancho_jpg - diferencia_alto, alto_jpg - diferencia_alto), Image.ANTIALIAS))
+                                self.lb_no_imagen.config(bg="white", text="", image=new_imagen, compound=CENTER)
+                                self.lb_no_imagen.photo = new_imagen
+                        else:
+                            new_imagen = ImageTk.PhotoImage(imagen_original)
+                            self.lb_no_imagen.config(bg="white", text="", image=new_imagen, compound=CENTER)
+                            self.lb_no_imagen.photo = new_imagen
+                        imagen_original.close()
+                        break
+                    except:
+                        traceback.print_exc()
+        if not hay_filtro:
+            self.lb_no_imagen.config(text=f"La imagen {imagen.titulo[1:len(imagen.titulo) - 1]} no posee el filtro Mirror X.", bg="gray", image="")
+            self.lb_no_imagen.photo = ""
+    
+    def imagen_mirrory_jpg(self, imagen):
+        hay_filtro = False
+        if imagen.filtros is not None:
+            for filtro in imagen.filtros:
+                if filtro == "MIRRORY":
+                    hay_filtro = True
+                    try:
+                        ancho_jpg = imagen.ancho + 20
+                        alto_jpg = imagen.alto + 20
+                        diferencia_ancho = 0
+                        diferencia_alto = 0
+                        if ancho_jpg > 700:
+                            diferencia_ancho = ancho_jpg - 700 
+                        if alto_jpg > 380:
+                            diferencia_alto = alto_jpg - 380
+                        ruta_jpg = f"Imagenes JPG/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.jpg"
+                        imagen_original = Image.open(ruta_jpg)
+                        if diferencia_ancho != 0 or diferencia_alto != 0:
+                            if diferencia_ancho > diferencia_alto:
+                                new_imagen = ImageTk.PhotoImage(imagen_original.resize((ancho_jpg - diferencia_ancho, alto_jpg - diferencia_ancho), Image.ANTIALIAS))
+                                self.lb_no_imagen.config(bg="white", text="", image=new_imagen, compound=CENTER)
+                                self.lb_no_imagen.photo = new_imagen
+                            else:
+                                new_imagen = ImageTk.PhotoImage(imagen_original.resize((ancho_jpg - diferencia_alto, alto_jpg - diferencia_alto), Image.ANTIALIAS))
+                                self.lb_no_imagen.config(bg="white", text="", image=new_imagen, compound=CENTER)
+                                self.lb_no_imagen.photo = new_imagen
+                        else:
+                            new_imagen = ImageTk.PhotoImage(imagen_original)
+                            self.lb_no_imagen.config(bg="white", text="", image=new_imagen, compound=CENTER)
+                            self.lb_no_imagen.photo = new_imagen
+                        imagen_original.close()
+                        break
+                    except:
+                        traceback.print_exc()
+        if not hay_filtro:
+            self.lb_no_imagen.config(text=f"La imagen {imagen.titulo[1:len(imagen.titulo) - 1]} no posee el filtro Mirror Y.", bg="gray", image="")
+            self.lb_no_imagen.photo = ""
+    
+    def imagen_double_jpg(self, imagen):
+        hay_filtro = False
+        if imagen.filtros is not None:
+            for filtro in imagen.filtros:
+                if filtro == "DOUBLEMIRROR":
+                    hay_filtro = True
+                    try:
+                        ancho_jpg = imagen.ancho + 20
+                        alto_jpg = imagen.alto + 20
+                        diferencia_ancho = 0
+                        diferencia_alto = 0
+                        if ancho_jpg > 700:
+                            diferencia_ancho = ancho_jpg - 700 
+                        if alto_jpg > 380:
+                            diferencia_alto = alto_jpg - 380
+                        ruta_jpg = f"Imagenes JPG/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.jpg"
+                        imagen_original = Image.open(ruta_jpg)
+                        if diferencia_ancho != 0 or diferencia_alto != 0:
+                            if diferencia_ancho > diferencia_alto:
+                                new_imagen = ImageTk.PhotoImage(imagen_original.resize((ancho_jpg - diferencia_ancho, alto_jpg - diferencia_ancho), Image.ANTIALIAS))
+                                self.lb_no_imagen.config(bg="white", text="", image=new_imagen, compound=CENTER)
+                                self.lb_no_imagen.photo = new_imagen
+                            else:
+                                new_imagen = ImageTk.PhotoImage(imagen_original.resize((ancho_jpg - diferencia_alto, alto_jpg - diferencia_alto), Image.ANTIALIAS))
+                                self.lb_no_imagen.config(bg="white", text="", image=new_imagen, compound=CENTER)
+                                self.lb_no_imagen.photo = new_imagen
+                        else:
+                            new_imagen = ImageTk.PhotoImage(imagen_original)
+                            self.lb_no_imagen.config(bg="white", text="", image=new_imagen, compound=CENTER)
+                            self.lb_no_imagen.photo = new_imagen
+                        imagen_original.close()
+                        break
+                    except:
+                        traceback.print_exc()
+        if not hay_filtro:
+            self.lb_no_imagen.config(text=f"La imagen {imagen.titulo[1:len(imagen.titulo) - 1]} no posee el filtro DoubleMirror.", bg="gray", image="")
+            self.lb_no_imagen.photo = ""
 
 if __name__ == '__main__':
     ventana = Tk()
