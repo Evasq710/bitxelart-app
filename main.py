@@ -5,6 +5,7 @@ from clases import Token, Imagen, Error
 import os
 import traceback
 import imgkit
+import webbrowser
 
 tokens = []
 titulo = Token(1, "titulo")
@@ -122,7 +123,7 @@ class Interfaz:
         self.imagenes_btn = Button(frame_btn, text="Imagenes", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame3.tkraise(), self.imagenes_programa()])
         self.imagenes_btn.grid(row=0, column=2, padx=20)
 
-        self.reportes_btn = Button(frame_btn, text="Ver Reportes HTML", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame4.tkraise()])
+        self.reportes_btn = Button(frame_btn, text="Ver Reportes HTML", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame4.tkraise(), self.reportes_html()])
         self.reportes_btn.grid(row=0, column=3, padx=20)
 
         self.salir_btn = Button(frame_btn, text="Salir", font=("Consolas", 15), fg="cornsilk", bg="firebrick", command=ventana.destroy)
@@ -183,7 +184,7 @@ class Interfaz:
                 # print("\nIMÁGENES:")
                 # for z in imagenes_cargadas:
                 #     print(z.titulo, str(z.ancho), str(z.alto), str(z.filas), str(z.columnas), len(z.matriz_celdas), z.filtros)
-                # print("->Análisis finalizado con éxito")
+                print("->Análisis finalizado con éxito")
             except Exception:
                 traceback.print_exc()
                 title3= Label(self.frame_file, text="Ocurrió un error en el analizador léxico :(", font=("Consolas", 20), bg="white")
@@ -196,7 +197,7 @@ class Interfaz:
             print("->No se seleccionó un archivo")
     
     def is_ascii(self, caracter):
-        if ord(caracter) == 32 or ord(caracter) == 33 or (ord(caracter) >= 35 and ord(caracter) <= 126) or ord(caracter) == 130 or (ord(caracter) >= 160 and ord(caracter) <= 165):
+        if ord(caracter) == 32 or ord(caracter) == 33 or (ord(caracter) >= 35 and ord(caracter) <= 154) or ord(caracter) == 130 or (ord(caracter) >= 160 and ord(caracter) <= 253):
             return True
         return False
 
@@ -2312,6 +2313,336 @@ class Interfaz:
         if not hay_filtro:
             self.lb_no_imagen.config(text=f"La imagen {imagen.titulo[1:len(imagen.titulo) - 1]} no posee el filtro DoubleMirror.", bg="gray", image="")
             self.lb_no_imagen.photo = ""
+
+    def reportes_html(self):
+        global texto_cargado
+        if texto_cargado:
+            self.frame4_file = Frame(self.frame4, bg="white")
+            self.frame4_file.place(x=0, y=0, relheight=1, relwidth=1)
+            load_img4 = PhotoImage(file="images/html.png")
+            load_lb = Label(self.frame4_file, image=load_img4, bg="white")
+            load_lb.photo = load_img4
+            load_lb.place(x=10, y=40, width=300, height=300)
+            title1= Label(self.frame4_file, text="Generando los reportes en formato HTML", font=("Consolas", 20), bg="white")
+            title1.place(x=320, y=150)
+            tokens_generados = self.reporte_tokens()
+            if tokens_generados:
+                title1= Label(self.frame4_file, text="Reporte de tokens generado exitosamente.", font=("Consolas", 20), bg="white")
+                title1.place(x=320, y=150)                
+            else:
+                title1= Label(self.frame4_file, text="Fallo en la creación del reporte de Tokens.", font=("Consolas", 20), bg="white")
+                title1.place(x=320, y=150)
+            errores_generados = self.reporte_errores()
+            if errores_generados:
+                title2= Label(self.frame4_file, text="Reporte de errores generado exitosamente.", font=("Consolas", 20), bg="white")
+                title2.place(x=320, y=190)
+            else:
+                title2= Label(self.frame4_file, text="Fallo en la creación del reporte de Errores.", font=("Consolas", 20), bg="white")
+                title2.place(x=320, y=190)
+            try:
+                if tokens_generados:
+                    webbrowser.open_new(os.path.abspath("Reportes HTML/tokens.html"))
+                if errores_generados:
+                    webbrowser.open_new(os.path.abspath("Reportes HTML/errores.html"))
+            except:
+                traceback.print_exc()
+                print("->Ocurrió un error al abrir los reportes en el navegador.")
+    
+    def reporte_tokens(self):
+        global tokens_leidos
+        html = '''<!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+            <link rel="stylesheet" href="tokens.css" type="text/css" />
+            <title>Reporte Tokens</title>
+        </head>
+        <body>
+            <li style="float: left; padding-left: 25%; padding-right: 20px;"><span class="material-icons md-light md-100">generating_tokens</span></li>
+            <h1>Reporte de Tokens</h1>
+            <div class="datos-reporte">
+                <div class="tabla-tokens">
+                    <table class="table table-striped table-hover">
+                        <thead style="background-color: black; color: white;">
+                            <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Id Token</th>
+                            <th scope="col">Token</th>
+                            <th scope="col">Lexema</th>
+                            <th scope="col">Fila</th>
+                            <th scope="col">Columna</th>
+                            </tr>
+                        </thead>
+                        <tbody>'''
+        token_agregado = 0
+        id_fila = ""
+        for token in tokens_leidos:
+            token_agregado += 1
+            id_fila = "uno" if token_agregado % 2 == 1 else "dos"
+            html += f'''\n<tr id="{id_fila}">
+            <th scope="row">{token_agregado}</th>
+            <td>{token.id_token}</td>
+            <td>{token.nombre}</td>
+            <td>{token.lexema}</td>
+            <td>{token.fila}</td>
+            <td>{token.columna}</td>
+            </tr>'''
+        html += '''\n</tbody>
+                    </table>
+                </div>
+            </div>
+            <footer>
+                <p>Elías Abraham Vasquez Soto - 201900131</p>
+                <p>Proyecto 1 - Laboratorio Lenguajes Formales y de Programación B-</p>        
+                <img src="images/logo_usac.png" width="220" height="60"/>
+            </footer>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        </body>
+        </html>'''
+        css = '''html {
+            min-height: 100%;
+            position: relative;
+        }
+
+        body {
+            background-color:rgb(1, 11, 26);
+            padding-top: 20px;
+            margin-bottom: 150px;
+        }
+
+        /* ===== Iconos de Google ===== */
+        /* Rules for sizing the icon. */
+        .material-icons.md-24 { font-size: 24px; }
+        .material-icons.md-30 { font-size: 30px; }
+        .material-icons.md-100 { font-size: 100px; }
+        /* Rules for using icons as black on a light background. */
+        .material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
+        .material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
+        /* Rules for using icons as white on a dark background. */
+        .material-icons.md-light { color: rgba(255, 255, 255, 1); }
+        .material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
+
+        h1 {
+            color: white;
+            font-family: 'Lato', sans-serif;
+            font-size: 75px;
+        }
+
+        .datos-reporte {
+            background-color: rgb(255, 255, 255);
+            padding-top: 20px;
+            padding-bottom: 20px;
+            padding-left: 50px;
+            margin: 30px 100px 30px 100px;
+        }
+
+        .tabla-tokens {
+            padding-top: 20px;
+            padding-left: 20px;
+            padding-right: 40px;
+            text-align: center;
+            font-family: 'Lato', sans-serif;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+
+        table td{    
+            color: white;
+        }
+
+        table th{    
+            color: white;
+        }
+
+        #uno {
+            background-color: rgb(61, 57, 48);
+        }
+
+        #dos {
+            background-color: rgb(54, 1, 1);
+        }
+
+        footer {
+            color: white;
+            line-height: 10px;
+            text-align: center;
+            padding-top: 20px;
+            padding-bottom: 5px;
+            font-size: 15px;
+            font-family: 'Lato', sans-serif;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-image: url("images/footer.png");
+        }'''
+        try:
+            reporte_tokens = open("Reportes HTML/tokens.html", "w")
+            reporte_tokens.write(html)
+            reporte_tokens.close()
+            print("->HTML Tokens generado")
+            css_tokens = open("Reportes HTML/tokens.css", "w")
+            css_tokens.write(css)
+            css_tokens.close()
+            print("->CSS Tokens generado")
+            return True
+        except:
+            traceback.print_exc()
+            return False
+
+    def reporte_errores(self):
+        global errores_encontrados
+        html = '''<!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+            <link rel="stylesheet" href="errores.css" type="text/css" />
+            <title>Reporte Errores</title>
+        </head>
+        <body>
+            <li style="float: left; padding-left: 25%; padding-right: 20px;"><span class="material-icons md-light md-100">error</span></li>
+            <h1>Reporte de Errores</h1>
+            <div class="datos-reporte">
+                <div class="tabla-errores">
+                    <table class="table table-striped table-hover">
+                        <thead style="background-color: black; color: white;">
+                            <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Caracter</th>
+                            <th scope="col">Descripcion</th>
+                            <th scope="col">Fila</th>
+                            <th scope="col">Columna</th>
+                            </tr>
+                        </thead>
+                        <tbody>'''
+        error_agregado = 0
+        id_fila = ""
+        for error in errores_encontrados:
+            error_agregado += 1
+            id_fila = "uno" if error_agregado % 2 == 1 else "dos"
+            html += f'''\n<tr id="{id_fila}">
+            <th scope="row">{error_agregado}</th>
+            <td>{error.caracter}</td>
+            <td>{error.descripcion}</td>
+            <td>{error.fila}</td>
+            <td>{error.columna}</td>
+            </tr>'''
+        html += '''\n</tbody>
+                    </table>
+                </div>
+            </div>
+            <footer>
+                <p>Elías Abraham Vasquez Soto - 201900131</p>
+                <p>Proyecto 1 - Laboratorio Lenguajes Formales y de Programación B-</p>        
+                <img src="images/logo_usac.png" width="220" height="60"/>
+            </footer>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        </body>
+        </html>'''
+        css = '''html {
+            min-height: 100%;
+            position: relative;
+        }
+
+        body {
+            background-color:rgb(54, 1, 1);
+            padding-top: 20px;
+            margin-bottom: 150px;
+        }
+
+        /* ===== Iconos de Google ===== */
+        /* Rules for sizing the icon. */
+        .material-icons.md-24 { font-size: 24px; }
+        .material-icons.md-30 { font-size: 30px; }
+        .material-icons.md-100 { font-size: 100px; }
+        /* Rules for using icons as black on a light background. */
+        .material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
+        .material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
+        /* Rules for using icons as white on a dark background. */
+        .material-icons.md-light { color: rgba(255, 255, 255, 1); }
+        .material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
+
+
+        h1 {
+            color: white;
+            font-family: 'Lato', sans-serif;
+            font-size: 75px;
+        }
+
+        .datos-reporte {
+            background-color: rgb(255, 255, 255);
+            padding-top: 20px;
+            padding-bottom: 20px;
+            padding-left: 50px;
+            margin: 30px 100px 30px 100px;
+        }
+
+        .tabla-errores {
+            padding-top: 20px;
+            padding-left: 20px;
+            padding-right: 40px;
+            text-align: center;
+            font-family: 'Lato', sans-serif;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+
+        table td{    
+            color: white;
+        }
+
+        table th{    
+            color: white;
+        }
+
+        #uno {
+            background-color: rgb(61, 57, 48);
+        }
+
+        #dos {
+            background-color: rgb(9, 2, 41);
+        }
+
+        footer {
+            color: white;
+            line-height: 10px;
+            text-align: center;
+            padding-top: 20px;
+            padding-bottom: 5px;
+            font-size: 15px;
+            font-family: 'Lato', sans-serif;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-image: url("images/footer.png");
+        }'''
+        try:
+            reporte_errores = open("Reportes HTML/errores.html", "w")
+            reporte_errores.write(html)
+            reporte_errores.close()
+            print("->HTML Errores generado")
+            css_errores = open("Reportes HTML/errores.css", "w")
+            css_errores.write(css)
+            css_errores.close()
+            print("->CSS Errores generado")
+            return True
+        except:
+            traceback.print_exc()
+            return False
 
 if __name__ == '__main__':
     ventana = Tk()
