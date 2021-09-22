@@ -57,7 +57,7 @@ name_archivo_actual = ""
 class Interfaz:
     def __init__(self, ventana):
         self.window = ventana
-        self.window.title('Bixelart')        
+        self.window.title('Bitxelart')        
         self.window.state('zoomed')
         
         imagen = PhotoImage(file = "images/fondo.png")
@@ -65,7 +65,7 @@ class Interfaz:
         fondo.photo = imagen
         fondo.place(x=0, y=0, relwidth=1, relheight=1)
 
-        title = Label(self.window, text="Bixelart App", font=("Consolas", 60, "bold"), bg="white")
+        title = Label(self.window, text="Bitxelart App", font=("Consolas", 60, "bold"), bg="white")
         title.place(x=500, y=70)
 
         self.frame4 = LabelFrame(self.window,bg="white", text="Reportes")
@@ -173,17 +173,13 @@ class Interfaz:
                 imagenes_cargadas = []
                 errores_encontrados = []
                 self.analizar_archivo()
-                title3= Label(self.frame_file, text="Archivo analizado exitosamente.", font=("Consolas", 20), bg="white")
-                title3.place(x=320, y=190)
-                # print("\nTOKENS:")
-                # for x in tokens_leidos:
-                #     print(x.nombre, "FILA:", str(x.fila), "COLUMNA:", str(x.columna), "LEXEMA:", x.lexema)
-                # print("\nERRORES:")
-                # for y in errores_encontrados:
-                #     print(y.caracter, y.descripcion, "FILA:", str(y.fila), "COLUMNA:", str(y.columna))
-                # print("\nIMÁGENES:")
-                # for z in imagenes_cargadas:
-                #     print(z.titulo, str(z.ancho), str(z.alto), str(z.filas), str(z.columnas), len(z.matriz_celdas), z.filtros)
+                if len(imagenes_cargadas) > 0:
+                    title3= Label(self.frame_file, text="Archivo analizado exitosamente.", font=("Consolas", 20), bg="white")
+                    title3.place(x=320, y=190)
+                else:
+                    texto_cargado = False
+                    title3= Label(self.frame_file, text="No se detectaron imágenes. Ver Errores.", font=("Consolas", 20), bg="white")
+                    title3.place(x=320, y=190)
                 print("->Análisis finalizado con éxito")
             except Exception:
                 traceback.print_exc()
@@ -1887,10 +1883,18 @@ class Interfaz:
             <meta name="viewport" content="width=device-width, initial-scale=1.0">'''
         if not jpg:
             html += f'\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]}.css">'
+            html += '''
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">'''
         html += f'''\n<title>{imagen.titulo[1:len(imagen.titulo) - 1]}</title>
         </head>
-        <body>
-            <div class="imagen">'''
+        <body>'''
+        if not jpg:
+            html += f'\n<p style="font-family: \'Press Start 2P\'; font-size: 40px; position: absolute; top: 0px;">{imagen.titulo[1:len(imagen.titulo) - 1]}</p>'
+            html += '\n<div class="imagen" style="position: relative;">'
+        else:
+            html += '\n<div class="imagen">'
         for celda in imagen.matriz_celdas:
             if celda.is_painted:
                 html += f'\n<div class="pixel" id="x{celda.pos_x}y{celda.pos_y}"></div>'
@@ -1959,10 +1963,18 @@ class Interfaz:
                 if filtro == "MIRRORX":
                     if not jpg:
                         html_filtro += f'\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.css">'
+                        html_filtro += '''
+                        <link rel="preconnect" href="https://fonts.googleapis.com">
+                        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">'''
                     html_filtro += f'''\n<title>{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX</title>
                     </head>
-                    <body>
-                        <div class="imagen">'''
+                    <body>'''
+                    if not jpg:
+                        html_filtro += f'\n<p style="font-family: \'Press Start 2P\'; font-size: 40px; position: absolute; top: 0px;">{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX</p>'
+                        html_filtro += '\n<div class="imagen" style="position: relative;">'
+                    else:
+                        html_filtro += '\n<div class="imagen">'
                     for celda in imagen.matriz_celdas_mirrorx:
                         if celda.is_painted:
                             html_filtro += f'\n<div class="pixel" id="x{celda.pos_x}y{celda.pos_y}"></div>'
@@ -2001,10 +2013,18 @@ class Interfaz:
                 elif filtro == "MIRRORY":
                     if not jpg:
                         html_filtro += f'\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.css">'
+                        html_filtro += '''
+                        <link rel="preconnect" href="https://fonts.googleapis.com">
+                        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">'''
                     html_filtro += f'''\n<title>{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY</title>
                     </head>
-                    <body>
-                        <div class="imagen">'''
+                    <body>'''
+                    if not jpg:
+                        html_filtro += f'\n<p style="font-family: \'Press Start 2P\'; font-size: 40px; position: absolute; top: 0px;">{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY</p>'
+                        html_filtro += '\n<div class="imagen" style="position: relative;">'
+                    else:
+                        html_filtro += '\n<div class="imagen">'
                     for celda in imagen.matriz_celdas_mirrory:
                         if celda.is_painted:
                             html_filtro += f'\n<div class="pixel" id="x{celda.pos_x}y{celda.pos_y}"></div>'
@@ -2043,10 +2063,18 @@ class Interfaz:
                 elif filtro == "DOUBLEMIRROR":
                     if not jpg:
                         html_filtro += f'\n<link rel="stylesheet" href="{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.css">'
+                        html_filtro += '''
+                        <link rel="preconnect" href="https://fonts.googleapis.com">
+                        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">'''
                     html_filtro += f'''\n<title>{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR</title>
                     </head>
-                    <body>
-                        <div class="imagen">'''
+                    <body>'''
+                    if not jpg:
+                        html_filtro += f'\n<p style="font-family: \'Press Start 2P\'; font-size: 40px; position: absolute; top: 0px;">{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR</p>'
+                        html_filtro += '\n<div class="imagen" style="position: relative;">'
+                    else:
+                        html_filtro += '\n<div class="imagen">'
                     for celda in imagen.matriz_celdas_double:
                         if celda.is_painted:
                             html_filtro += f'\n<div class="pixel" id="x{celda.pos_x}y{celda.pos_y}"></div>'
