@@ -1915,7 +1915,7 @@ class Interfaz:
                 ruta_html = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.html"
             else:
                 ruta_html = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.html"
-            imagen_original = open(ruta_html, "w")
+            imagen_original = open(ruta_html, "w",encoding="utf8")
             imagen_original.write(html)
             imagen_original.close()
             ruta_css = ''
@@ -1923,7 +1923,7 @@ class Interfaz:
                 ruta_css = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.css"
             else:
                 ruta_css = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]}.css"
-            styles_original = open(ruta_css, "w")
+            styles_original = open(ruta_css, "w",encoding="utf8")
             styles_original.write(css)
             styles_original.close()
             imagenes_generadas += 1
@@ -1995,7 +1995,7 @@ class Interfaz:
                             ruta_html = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.html"
                         else:
                             ruta_html = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.html"
-                        imagen_mirrorx = open(ruta_html, "w")
+                        imagen_mirrorx = open(ruta_html, "w",encoding="utf8")
                         imagen_mirrorx.write(html_filtro)
                         imagen_mirrorx.close()
                         ruta_css = ''
@@ -2003,7 +2003,7 @@ class Interfaz:
                             ruta_css = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.css"
                         else:
                             ruta_css = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORX.css"
-                        styles_mirrorx = open(ruta_css, "w")
+                        styles_mirrorx = open(ruta_css, "w",encoding="utf8")
                         styles_mirrorx.write(css_filtro)
                         styles_mirrorx.close()
                         imagenes_generadas += 1
@@ -2045,7 +2045,7 @@ class Interfaz:
                             ruta_html = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.html"
                         else:
                             ruta_html = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.html"
-                        imagen_mirrory = open(ruta_html, "w")
+                        imagen_mirrory = open(ruta_html, "w",encoding="utf8")
                         imagen_mirrory.write(html_filtro)
                         imagen_mirrory.close()
                         ruta_css = ''
@@ -2053,7 +2053,7 @@ class Interfaz:
                             ruta_css = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.css"
                         else:
                             ruta_css = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - MIRRORY.css"
-                        styles_mirrory = open(ruta_css, "w")
+                        styles_mirrory = open(ruta_css, "w",encoding="utf8")
                         styles_mirrory.write(css_filtro)
                         styles_mirrory.close()
                         imagenes_generadas += 1
@@ -2095,7 +2095,7 @@ class Interfaz:
                             ruta_html = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.html"
                         else:
                             ruta_html = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.html"
-                        imagen_double = open(ruta_html, "w")
+                        imagen_double = open(ruta_html, "w",encoding="utf8")
                         imagen_double.write(html_filtro)
                         imagen_double.close()
                         ruta_css = ''
@@ -2103,7 +2103,7 @@ class Interfaz:
                             ruta_css = f"Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.css"
                         else:
                             ruta_css = f"Imagenes JPG/Imagenes HTML/{imagen.titulo[1:len(imagen.titulo) - 1]} - DOUBLEMIRROR.css"
-                        styles_double = open(ruta_css, "w")
+                        styles_double = open(ruta_css, "w",encoding="utf8")
                         styles_double.write(css_filtro)
                         styles_double.close()
                         imagenes_generadas += 1
@@ -2511,11 +2511,11 @@ class Interfaz:
             background-image: url("images/footer.png");
         }'''
         try:
-            reporte_tokens = open("Reportes HTML/tokens.html", "w")
+            reporte_tokens = open("Reportes HTML/tokens.html", "w",encoding="utf8")
             reporte_tokens.write(html)
             reporte_tokens.close()
             print("->HTML Tokens generado")
-            css_tokens = open("Reportes HTML/tokens.css", "w")
+            css_tokens = open("Reportes HTML/tokens.css", "w",encoding="utf8")
             css_tokens.write(css)
             css_tokens.close()
             print("->CSS Tokens generado")
@@ -2659,11 +2659,11 @@ class Interfaz:
             background-image: url("images/footer.png");
         }'''
         try:
-            reporte_errores = open("Reportes HTML/errores.html", "w")
+            reporte_errores = open("Reportes HTML/errores.html", "w",encoding="utf8")
             reporte_errores.write(html)
             reporte_errores.close()
             print("->HTML Errores generado")
-            css_errores = open("Reportes HTML/errores.css", "w")
+            css_errores = open("Reportes HTML/errores.css", "w",encoding="utf8")
             css_errores.write(css)
             css_errores.close()
             print("->CSS Errores generado")
