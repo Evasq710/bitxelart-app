@@ -61,11 +61,11 @@ class Interfaz:
         self.window.state('zoomed')
         
         imagen = PhotoImage(file = "images/fondo.png")
-        fondo = Label(self.window, image = imagen, bg="white")
+        fondo = Label(self.window, image = imagen, bg="beige")
         fondo.photo = imagen
         fondo.place(x=0, y=0, relwidth=1, relheight=1)
 
-        title = Label(self.window, text="Bitxelart App", font=("Consolas", 60, "bold"), bg="white")
+        title = Label(self.window, text="Bitxelart App", font=("Consolas", 60, "bold"), bg="beige")
         title.place(x=500, y=70)
 
         self.frame4 = LabelFrame(self.window,bg="white", text="Reportes")
@@ -111,7 +111,7 @@ class Interfaz:
         for frame in (self.frame1, self.frame2, self.frame3, self.frame4):
             frame.place(x=250, y=280, width=1050, height=480)
 
-        frame_btn = Frame(self.window, bg="white")
+        frame_btn = Frame(self.window, bg="beige")
         frame_btn.place(x=300, y=200)
 
         self.cargar_btn = Button(frame_btn, text="Cargar Archivo", font=("Consolas", 15), bg="light sea green", command = lambda:[self.frame1.tkraise(), self.abrirArchivo()])
@@ -1600,20 +1600,43 @@ class Interfaz:
                             if self.is_hexadecimal_letter(caracter) or self.is_number(caracter):
                                 lexema_actual += caracter
                                 color_aux += caracter
-                                estado_sec = "c82"
+                                estado_sec = "c82.1"
                             else:
                                 new_error += 1
-                                e_hexa = Error(new_error, caracter, "Se esperaba un número hexadecimal (0-9, A-F) para el token 'CELDA'.", fila, columna-(len(lexema_actual)-1))
+                                e_hexa = Error(new_error, caracter, "Se esperaba el primer número hexadecimal (0-9, A-F) para el token 'CELDA'.", fila, columna-(len(lexema_actual)-1))
                                 errores_encontrados.append(e_hexa)
                                 lexema_actual = ""
                                 estado_sec = "c0"
-                        elif estado_sec == "c82":
+                        elif estado_sec == "c82.1":
                             if self.is_hexadecimal_letter(caracter) or self.is_number(caracter):
                                 lexema_actual += caracter
                                 color_aux += caracter
+                                estado_sec = "c82.2"
+                            else:
+                                new_error += 1
+                                e_hexa_c_cor = Error(new_error, caracter, "Se esperaba el segundo hexadecimal (0-9, A-F) para el token 'CELDA'.", fila, columna-(len(lexema_actual)-1))
+                                errores_encontrados.append(e_hexa_c_cor)
+                                lexema_actual = ""
+                                estado_sec = "c0"
+                        elif estado_sec == "c82.2":
+                            if self.is_hexadecimal_letter(caracter) or self.is_number(caracter):
+                                lexema_actual += caracter
+                                color_aux += caracter
+                                estado_sec = "c82.3"
+                            else:
+                                new_error += 1
+                                e_hexa_c_cor = Error(new_error, caracter, "Se esperaba el tercer número hexadecimal (0-9, A-F) para el token 'CELDA'.", fila, columna-(len(lexema_actual)-1))
+                                errores_encontrados.append(e_hexa_c_cor)
+                                lexema_actual = ""
+                                estado_sec = "c0"
+                        elif estado_sec == "c82.3":
+                            if self.is_hexadecimal_letter(caracter) or self.is_number(caracter):
+                                lexema_actual += caracter
+                                color_aux += caracter
+                                estado_sec = "c82.4"
                             elif ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
                                 lexema_actual += caracter
-                                estado_sec = "c82.5"
+                                estado_sec = "c82.7"
                             elif caracter == "]":
                                 lexema_actual += caracter
                                 new_token += 1
@@ -1635,11 +1658,62 @@ class Interfaz:
                                 estado_sec = "c83"
                             else:
                                 new_error += 1
-                                e_hexa_c_cor = Error(new_error, caracter, "Se esperaba un número hexadecimal (0-9, A-F) o el caracter ']' para el token 'CELDA'.", fila, columna-(len(lexema_actual)-1))
+                                e_hexa_c_cor = Error(new_error, caracter, "Se esperaba el cuarto número hexadecimal (0-9, A-F) o el caracter ']' para el token 'CELDA'.", fila, columna-(len(lexema_actual)-1))
+                                errores_encontrados.append(e_hexa_c_cor)
+                                lexema_actual = ""
+                                estado_sec = "c0"
+                        elif estado_sec == "c82.4":
+                            if self.is_hexadecimal_letter(caracter) or self.is_number(caracter):
+                                lexema_actual += caracter
+                                color_aux += caracter
+                                estado_sec = "c82.5"
+                            else:
+                                new_error += 1
+                                e_hexa_c_cor = Error(new_error, caracter, "Se esperaba el quinto número hexadecimal (0-9, A-F) para el token 'CELDA'.", fila, columna-(len(lexema_actual)-1))
                                 errores_encontrados.append(e_hexa_c_cor)
                                 lexema_actual = ""
                                 estado_sec = "c0"
                         elif estado_sec == "c82.5":
+                            if self.is_hexadecimal_letter(caracter) or self.is_number(caracter):
+                                lexema_actual += caracter
+                                color_aux += caracter
+                                estado_sec = "c82.6"
+                            else:
+                                new_error += 1
+                                e_hexa_c_cor = Error(new_error, caracter, "Se esperaba el sexto número hexadecimal (0-9, A-F) para el token 'CELDA'.", fila, columna-(len(lexema_actual)-1))
+                                errores_encontrados.append(e_hexa_c_cor)
+                                lexema_actual = ""
+                                estado_sec = "c0"
+                        elif estado_sec == "c82.6":
+                            if ord(caracter) == 9 or ord(caracter) == 10 or ord(caracter) == 32:
+                                lexema_actual += caracter
+                                estado_sec = "c82.7"
+                            elif caracter == "]":
+                                lexema_actual += caracter
+                                new_token += 1
+                                cell = Token(15, "Celda", numero=new_token, lexema=lexema_actual, fila=fila, columna=columna-(len(lexema_actual)-1))
+                                tokens_leidos.append(cell)
+                                lexema_actual = ""
+                                try:
+                                    posx_aux = int(posx_aux)
+                                    posy_aux = int(posy_aux)
+                                    celda_aux = Imagen.Celda(posx_aux, posy_aux, color = color_aux, is_painted = boolean_aux)
+                                    celdas_aux.append(celda_aux)
+                                    posx_aux = ''
+                                    posy_aux = ''
+                                    color_aux =  ''
+                                    boolean_aux = None
+                                except Exception as e:
+                                    print(e)
+                                    print("-> Ocurrió un error en el parseo de las posiciones x y de una celda.")
+                                estado_sec = "c83"
+                            else:
+                                new_error += 1
+                                e_hexa_c_cor = Error(new_error, caracter, "Se esperaba el caracter ']' que finaliza el token 'CELDA'.", fila, columna-(len(lexema_actual)-1))
+                                errores_encontrados.append(e_hexa_c_cor)
+                                lexema_actual = ""
+                                estado_sec = "c0"
+                        elif estado_sec == "c82.7":
                             if caracter == "]":
                                 lexema_actual += caracter
                                 new_token += 1
